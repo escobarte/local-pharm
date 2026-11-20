@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Local Pharm — Карточка препарата</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#122056}a:hover{color:#0D1840}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; background: #FAFAFD; font-family: Inter, Helvetica, Arial, sans-serif; color: #122056; overflow: hidden">
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 16px 12px 8px">
+    <a href="Results-v3.dc.html" aria-label="Назад" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #122056"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+    <span style="font-size: 15px; font-weight: 600">Препарат</span>
+    <button type="button" aria-label="Редактировать" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: transparent; color: #122056"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
+  </header>
+  <main style="flex: 1; overflow-y: auto; padding: 4px 20px 16px; display: flex; flex-direction: column; gap: 18px">
+    <div style="height: 150px; border-radius: 16px; background: #EEEFFD; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #5A6283">Фото упаковки</div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.2px">Парацетамол 500 мг</h1>
+      <p style="margin: 0; font-size: 14px; color: #5A6283">Действующее вещество: парацетамол</p>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px">
+        <span style="padding: 5px 10px; border-radius: 8px; background: #EEEFFD; font-size: 12px; font-weight: 600">Таблетки</span>
+        <span style="padding: 5px 10px; border-radius: 8px; background: #EEEFFD; font-size: 12px; font-weight: 600">Боль и температура</span>
+        <span style="padding: 5px 10px; border-radius: 8px; background: #EEEFFD; font-size: 12px; font-weight: 500; color: #5A6283">Источник: AMDM</span>
+      </div>
+    </div>
+    <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #5A6283">Упаковки дома · 2</h2>
+      <sc-for list="{{packs}}" as="p" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 14px; background: #FFFFFF">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00B5AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <span style="flex: 1; font-size: 15px; font-weight: 600">{{p.place}}</span>
+            <a href="Box-v3.dc.html" style="font-size: 13px; font-weight: 600; color: #122056">Открыть</a>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5A6283">Количество</span><span style="font-size: 14px; font-weight: 600">{{p.qty}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5A6283">Годен до</span><span style="font-size: 14px; font-weight: 600">{{p.exp}}</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5A6283">Вскрыта</span><span style="font-size: 14px; font-weight: 600">{{p.opened}}</span></div>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button type="button" style="flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid #DDDFF3; background: #FFFFFF; color: #122056; font: inherit; font-size: 13px; font-weight: 600">Взял 1 шт.</button>
+            <button type="button" style="flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid #DDDFF3; background: #FFFFFF; color: #122056; font: inherit; font-size: 13px; font-weight: 600">Заканчивается</button>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #5A6283">Показания и дозировка</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 14px; background: #FFFFFF">
+        <span style="height: 10px; width: 92%; border-radius: 5px; background: #EEEFFD"></span>
+        <span style="height: 10px; width: 78%; border-radius: 5px; background: #EEEFFD"></span>
+        <span style="height: 10px; width: 85%; border-radius: 5px; background: #EEEFFD"></span>
+        <span style="height: 10px; width: 50%; border-radius: 5px; background: #EEEFFD"></span>
+      </div>
+    </section>
+    <a href="Add-v3.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: #122056; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 600">Добавить упаковку</a>
+  </main>
+  <nav aria-label="Основная навигация" style="display: flex; align-items: flex-end; background: #FFFFFF; border-top: 1px solid #EEEFFD; padding: 8px 8px 18px">
+    <a href="Home-v3.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; text-decoration: none; font-size: 11px; font-weight: 600; color: #122056"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Главная</a>
+    <a href="Storage-v3.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; text-decoration: none; font-size: 11px; font-weight: 500; color: #5A6283"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg>Хранение</a>
+    <a href="Add-v3.dc.html" aria-label="Добавить препарат" style="flex: 1; display: flex; justify-content: center; text-decoration: none"><span style="width: 56px; height: 56px; border-radius: 28px; background: #00B5AA; color: #122056; display: flex; align-items: center; justify-content: center; margin-top: -24px; box-shadow: 0 4px 12px rgba(18,32,86,0.2)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></a>
+    <a href="Expiry-v3.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; text-decoration: none; font-size: 11px; font-weight: 500; color: #5A6283"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Сроки</a>
+    <a href="Shopping-v3.dc.html" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 48px; text-decoration: none; font-size: 11px; font-weight: 500; color: #5A6283"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.5 11h11l2-8H6.5"/></svg>Покупки</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+packs: [
+{ place: 'Быстрая аптечка · A1', qty: '8 шт.', exp: '03/2027', opened: 'да' },
+{ place: 'Коробка 1 · B1', qty: '20 шт.', exp: '11/2027', opened: 'нет' }
+]
+};
+}
+}
+</script>
+</body>
+</html>
