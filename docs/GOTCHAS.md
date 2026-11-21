@@ -16,6 +16,7 @@
 
 - **`NEXT_PUBLIC_*` зашиваются при сборке** — после изменения нужен Redeploy в Vercel.
 - **Vercel Hobby — только некоммерческое использование.**
+- **Версия Node на Vercel берётся из `engines.node` / настроек проекта** — в Project Settings → Node.js Version должна стоять 22.x, иначе сборка пойдёт на другой версии.
 
 ## PWA / UI
 

@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* Design tokens — source of truth: docs/BRAND.md (palette v3 · Navy) */
+@theme {
+  --color-navy: #122056;
+  --color-accent: #00b5aa;
+  --color-bg: #fafafd;
+  --color-surface: #ffffff;
+  --color-tint: #eeeffd;
+  --color-border: #dddff3;
+  --color-muted: #5a6283;
+  --color-danger-fg: #b42318;
+  --color-danger-bg: #fdecea;
+  --color-warn-fg: #9a4a00;
+  --color-warn-bg: #fff1e0;
+  --color-warn-dot: #d97706;
+
+  --radius-field: 12px;
+  --radius-button: 14px;
+  --radius-card: 16px;
+  --radius-tag: 8px;
+  --radius-logo: 20px;
+}
+
+/* Font stack: Inter via next/font (--font-inter), fallbacks from BRAND.md */
+@theme inline {
+  --font-sans: var(--font-inter), Helvetica, Arial, sans-serif;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  font-size: 15px;
+}

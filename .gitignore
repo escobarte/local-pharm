@@ -1,0 +1,27 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# env: only the example is tracked
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# editor
+.vscode/
+
+# logs / misc
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+*.tsbuildinfo
