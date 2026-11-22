@@ -10,10 +10,11 @@ import { getSupabaseEnv } from "@/lib/env";
  * Returns null when Supabase env vars are missing. Create one per request.
  */
 export async function createSupabaseServerClient(): Promise<SupabaseClient | null> {
+  // Read cookies first: this marks every caller as request-time (dynamic), so
+  // pages are never prerendered at build time, even when env vars are missing.
+  const cookieStore = await cookies();
   const env = getSupabaseEnv();
   if (!env) return null;
-
-  const cookieStore = await cookies();
 
   return createServerClient(env.url, env.publishableKey, {
     cookies: {

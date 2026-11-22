@@ -22,6 +22,22 @@
 
 Файл можно запускать повторно: дублей не будет, политики пересоздаются.
 
+### 1.1. Миграция 0002 (Фаза 2: хранение)
+
+Выполняется **после** 0001 и **до** деплоя Фазы 2.
+
+1. SQL Editor → New query → вставить **целиком** `supabase/migrations/0002_storage.sql` → **Run**.
+2. Что она делает: добавляет `boxes.number` (номер коробки) и функцию `public.add_medication_with_pack(...)`, которая создаёт препарат и упаковку одной транзакцией. Права на функцию — только `authenticated`.
+3. Проверка:
+
+   ```sql
+   select column_name from information_schema.columns
+   where table_schema = 'public' and table_name = 'boxes' and column_name = 'number';  -- 1 строка
+   select has_function_privilege('anon', 'public.add_medication_with_pack(text,text,text,text,uuid,uuid,integer,date)', 'execute');  -- false
+   ```
+
+Файл безопасно запускать повторно. Если миграцию не применить, приложение при сохранении покажет: «База данных ещё не обновлена. Владельцу нужно выполнить миграцию 0002».
+
 ## 2. Белый список
 
 В SQL Editor выполнить для **каждого** из двух аккаунтов:
@@ -84,7 +100,8 @@ Vercel → Project → **Settings → Environment Variables** (окружени�
    ```
 
    Ожидается ошибка `permission denied` (код 42501). Таблица `allowed_emails` тоже должна отвечать `permission denied`.
-6. Cron: Vercel → Project → **Settings → Cron Jobs**: виден `/api/cron/keepalive`, расписание `0 6 * * *` (раз в сутки, UTC). Кнопка **Run** → в логах ответ `200 {"ok":true}`.
+6. Фаза 2: «Хранение» → «Новая коробка» → создать → добавить отсек → «Добавить сюда» → сохранить препарат. Он должен появиться в списке отсека с количеством и сроком.
+7. Cron: Vercel → Project → **Settings → Cron Jobs**: виден `/api/cron/keepalive`, расписание `0 6 * * *` (раз в сутки, UTC). Кнопка **Run** → в логах ответ `200 {"ok":true}`.
 
 ## Если что-то не так
 
@@ -93,5 +110,6 @@ Vercel → Project → **Settings → Environment Variables** (окружени�
 | После Google возвращает на «Вход» с «Не удалось войти» | Домен не в Redirect URLs (шаг 3) или открыт preview-домен, которого нет в списке |
 | Свой аккаунт получает «Нет доступа» | Email не в `allowed_emails` или опечатка (шаг 2) |
 | Страница «Что-то пошло не так» после входа | Миграция не применена: функции `is_allowed` нет (шаг 1) |
+| «Хранение» открывается с ошибкой или «База данных ещё не обновлена» | Не применена миграция 0002 (шаг 1.1) |
 | Cron отвечает 401 | `CRON_SECRET` не задан в Vercel или задан после деплоя без Redeploy |
 | Cron отвечает 502 | Supabase недоступен / проект на паузе / миграция не применена (нет `ping`) |

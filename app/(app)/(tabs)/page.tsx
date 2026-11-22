@@ -1,5 +1,5 @@
 import { getAccess } from "@/lib/supabase/server";
-import { signOut } from "./actions";
+import { signOut } from "../actions";
 
 // Placeholder home screen for Phase 1. Real screens come in Phases 2–3.
 export default async function HomePage() {
@@ -7,7 +7,7 @@ export default async function HomePage() {
   const email = access?.status === "allowed" ? access.email : "";
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 bg-bg px-5 pt-16 pb-12 text-navy">
+    <main className="flex flex-col gap-6 px-5 pt-16 pb-8">
       <h1 className="text-[28px] leading-tight font-bold">Local Pharm</h1>
       <section className="flex flex-col gap-2 rounded-card border border-border bg-surface p-5">
         <h2 className="text-xs font-semibold tracking-wide text-muted uppercase">Вы вошли как</h2>
