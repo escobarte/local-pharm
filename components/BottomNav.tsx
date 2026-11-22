@@ -13,7 +13,10 @@ const ITEMS = [
 ] as const;
 
 function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
+  // Home owns the search flow: results and medication cards belong to it.
+  if (href === "/") {
+    return pathname === "/" || pathname.startsWith("/search") || pathname.startsWith("/medications");
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

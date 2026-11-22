@@ -43,9 +43,10 @@ test("db errors map to Russian messages", () => {
   assert.match(describeDbError({ code: "23503" }, "delete-compartment"), /отсеке есть упаковки/);
   assert.match(describeDbError({ code: "23503" }, "delete-box"), /коробке есть упаковки/);
   assert.match(describeDbError({ code: "23503" }, "save-pack"), /больше не существует/);
+  assert.match(describeDbError({ code: "23503" }, "delete-medication"), /У препарата есть упаковки/);
   assert.match(describeDbError({ code: "42501" }), /Нет прав/);
   for (const code of ["PGRST202", "PGRST204", "42703", "42883"]) {
-    assert.match(describeDbError({ code }, "save-pack"), /миграцию 0002/, code);
+    assert.match(describeDbError({ code }, "save-pack"), /последнюю миграцию/, code);
   }
   assert.match(describeDbError({ code: "23514" }), /Проверьте/);
   assert.match(describeDbError({ code: "XX000", message: "boom" }), /Не удалось/);

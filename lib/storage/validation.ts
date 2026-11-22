@@ -88,6 +88,19 @@ export function parseCompartmentInput(raw: RawInput): ParseResult<CompartmentInp
   return finish(errors, { boxId, code });
 }
 
+// ---------- Pack fields shared by "add medication" and "add pack" ----------
+
+const QUANTITY_ERROR = `Количество — целое число от 1 до ${LIMITS.maxQuantity}.`;
+
+export function parseQuantity(
+  raw: string,
+): { ok: true; value: number } | { ok: false; error: string } {
+  if (!/^\d{1,4}$/.test(raw)) return { ok: false, error: QUANTITY_ERROR };
+  const value = Number(raw);
+  if (value < 1 || value > LIMITS.maxQuantity) return { ok: false, error: QUANTITY_ERROR };
+  return { ok: true, value };
+}
+
 // ---------- Medication + first pack (manual mode) ----------
 
 export type MedicationPackInput = {
@@ -125,16 +138,9 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
     else errors.categoryId = "Выберите категорию из списка.";
   }
 
-  const quantityRaw = text(raw, "quantity");
-  let quantity = 0;
-  if (!/^\d{1,4}$/.test(quantityRaw)) {
-    errors.quantity = `Количество — целое число от 1 до ${LIMITS.maxQuantity}.`;
-  } else {
-    quantity = Number(quantityRaw);
-    if (quantity < 1 || quantity > LIMITS.maxQuantity) {
-      errors.quantity = `Количество — целое число от 1 до ${LIMITS.maxQuantity}.`;
-    }
-  }
+  const quantityParsed = parseQuantity(text(raw, "quantity"));
+  if (!quantityParsed.ok) errors.quantity = quantityParsed.error;
+  const quantity = quantityParsed.ok ? quantityParsed.value : 0;
 
   const expiry = parseExpiryInput(text(raw, "expiry"));
   if (!expiry.ok) errors.expiry = expiry.error;
@@ -155,6 +161,8 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
 }
 
 /** Plain object from FormData (string values only are kept by the parsers). */
+export { text as readText, finish as finishParse };
+
 export function formDataToRaw(formData: FormData): RawInput {
   const raw: RawInput = {};
   for (const [key, value] of formData.entries()) {

@@ -19,6 +19,9 @@ export const dangerButtonClass =
 export const dangerOutlineButtonClass =
   `flex min-h-13 items-center justify-center rounded-button border border-danger-fg bg-surface px-4 text-[15px] font-semibold text-danger-fg hover:bg-danger-bg ${focusRing}`;
 
+export const warnButtonClass =
+  `flex min-h-13 items-center justify-center rounded-button border border-warn-fg bg-warn-bg px-4 text-[15px] font-semibold text-warn-fg hover:bg-warn-bg/70 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
+
 export const dashedButtonClass =
   `flex min-h-13 items-center justify-center gap-2 rounded-button border border-dashed border-muted bg-transparent px-4 text-sm font-semibold text-navy hover:bg-tint ${focusRing}`;
 

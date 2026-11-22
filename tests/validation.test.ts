@@ -152,3 +152,43 @@ test("formDataToRaw keeps string fields only", () => {
   fd.set("file", new Blob(["x"]), "x.txt");
   assert.deepEqual(formDataToRaw(fd), { name: "A" });
 });
+
+import { parseMovePackInput, parseNewPackInput } from "../lib/medications/validation.ts";
+
+test("parseNewPackInput: valid", () => {
+  const r = parseNewPackInput({ medicationId: U1, compartmentId: U2, quantity: " 3 ", expiry: "12/2026" });
+  assert.deepEqual(r, {
+    ok: true,
+    value: { medicationId: U1, compartmentId: U2, quantity: 3, expiryDate: "2026-12-31" },
+  });
+});
+
+test("parseNewPackInput: expiry optional, errors in Russian", () => {
+  const ok = parseNewPackInput({ medicationId: U1, compartmentId: U2, quantity: "1", expiry: "" });
+  assert.equal(ok.ok && ok.value.expiryDate, null);
+
+  const bad = parseNewPackInput({ medicationId: "x", compartmentId: "", quantity: "0", expiry: "13/2026" });
+  assert.equal(bad.ok, false);
+  if (!bad.ok) {
+    assert.match(bad.errors.medicationId, /Препарат не найден/);
+    assert.match(bad.errors.compartmentId, /Выберите/);
+    assert.match(bad.errors.quantity, /от 1 до 9999/);
+    assert.match(bad.errors.expiry, /ММ\/ГГГГ/);
+  }
+  for (const q of ["-1", "1.5", "10000", "abc", ""]) {
+    assert.equal(parseNewPackInput({ medicationId: U1, compartmentId: U2, quantity: q }).ok, false, q);
+  }
+});
+
+test("parseMovePackInput", () => {
+  assert.deepEqual(parseMovePackInput({ packId: U1, medicationId: U2, compartmentId: U2 }), {
+    ok: true,
+    value: { packId: U1, medicationId: U2, compartmentId: U2 },
+  });
+  const bad = parseMovePackInput({ packId: "x", medicationId: U2, compartmentId: "" });
+  assert.equal(bad.ok, false);
+  if (!bad.ok) {
+    assert.match(bad.errors.packId, /Упаковка не найдена/);
+    assert.match(bad.errors.compartmentId, /Выберите/);
+  }
+});

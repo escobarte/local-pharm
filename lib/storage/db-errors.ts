@@ -7,7 +7,10 @@ export type DbErrorContext =
   | "create-compartment"
   | "delete-compartment"
   | "delete-box"
-  | "save-pack";
+  | "save-pack"
+  | "take"
+  | "delete-pack"
+  | "delete-medication";
 
 const GENERIC = "Не удалось выполнить действие. Попробуйте ещё раз.";
 
@@ -21,14 +24,17 @@ export function describeDbError(error: DbErrorLike, context: DbErrorContext = "s
     if (context === "delete-compartment") {
       return "В отсеке есть упаковки. Сначала переложите их или удалите.";
     }
+    if (context === "delete-medication") {
+      return "У препарата есть упаковки. Сначала удалите их.";
+    }
     if (context === "delete-box") {
       return "В коробке есть упаковки. Сначала переложите их или удалите.";
     }
     return "Выбранная зона, категория или отсек больше не существует. Обновите страницу.";
   }
-  // PostgREST: function / column not found → migration 0002 was not applied yet.
+  // PostgREST: function / column not found → a migration was not applied yet.
   if (["PGRST202", "PGRST204", "42703", "42883"].includes(code)) {
-    return "База данных ещё не обновлена. Владельцу нужно выполнить миграцию 0002 (docs/SETUP-SUPABASE.md).";
+    return "База данных ещё не обновлена. Владельцу нужно выполнить последнюю миграцию (docs/SETUP-SUPABASE.md).";
   }
   if (code === "42501") return "Нет прав на это действие. Выйдите и войдите заново.";
   if (code === "23514") return "Проверьте значения полей: одно из них не подходит.";

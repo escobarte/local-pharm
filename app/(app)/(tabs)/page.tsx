@@ -1,26 +1,113 @@
-import { getAccess } from "@/lib/supabase/server";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SearchBox } from "@/components/SearchBox";
+import { sectionTitleClass, secondaryButtonClass } from "@/components/ui";
+import { todayIso } from "@/lib/dates";
+import { expiredText, expiringText, lowStockText } from "@/lib/format";
+import { getAttentionPacks } from "@/lib/medications/queries";
+import { attentionCounts, searchHref } from "@/lib/medications/search";
+import { getCategories } from "@/lib/storage/queries";
 import { signOut } from "../actions";
 
-// Placeholder home screen for Phase 1. Real screens come in Phases 2–3.
+export const metadata: Metadata = { title: "Local Pharm" };
+
+type Row = { key: string; count: number; title: string; emptyTitle: string; sub: string; href: string; tone: "danger" | "warn" | "tint" };
+
+const TONES = {
+  danger: "bg-danger-bg text-danger-fg",
+  warn: "bg-warn-bg text-warn-fg",
+  tint: "bg-tint text-navy",
+} as const;
+
 export default async function HomePage() {
-  const access = await getAccess();
-  const email = access?.status === "allowed" ? access.email : "";
+  const [packs, categories] = await Promise.all([getAttentionPacks(), getCategories()]);
+  const counts = attentionCounts(packs, todayIso());
+
+  const rows: Row[] = [];
+  if (counts.expired > 0) {
+    rows.push({
+      key: "expired",
+      count: counts.expired,
+      title: expiredText(counts.expired),
+      emptyTitle: "",
+      sub: "срок годности уже прошёл",
+      href: searchHref({ attention: "expired" }),
+      tone: "danger",
+    });
+  }
+  rows.push({
+    key: "expiring",
+    count: counts.expiring,
+    title: expiringText(counts.expiring),
+    emptyTitle: "Ничего не истекает",
+    sub: "в ближайшие 30 дней",
+    href: searchHref({ attention: "expiring" }),
+    tone: "warn",
+  });
+  rows.push({
+    key: "low",
+    count: counts.lowStock,
+    title: lowStockText(counts.lowStock),
+    emptyTitle: "Ничего не заканчивается",
+    sub: "отмечены как «заканчивается»",
+    href: searchHref({ attention: "low" }),
+    tone: "tint",
+  });
 
   return (
-    <main className="flex flex-col gap-6 px-5 pt-16 pb-8">
-      <h1 className="text-[28px] leading-tight font-bold">Local Pharm</h1>
-      <section className="flex flex-col gap-2 rounded-card border border-border bg-surface p-5">
-        <h2 className="text-xs font-semibold tracking-wide text-muted uppercase">Вы вошли как</h2>
-        <p className="text-[15px] font-medium break-all">{email || "—"}</p>
+    <main className="flex flex-col gap-6 px-5 pt-8 pb-8">
+      <header className="flex flex-col gap-3">
+        <p className="text-sm font-semibold text-muted">Local Pharm</p>
+        <h1 className="text-[28px] leading-tight font-bold">Что ищем?</h1>
+        <SearchBox />
+      </header>
+
+      <section aria-labelledby="attention-title" className="flex flex-col gap-2">
+        <h2 id="attention-title" className={sectionTitleClass}>
+          Внимание
+        </h2>
+        <ul className="flex flex-col gap-2">
+          {rows.map((r) => (
+            <li key={r.key}>
+              {r.count > 0 ? (
+                <Link
+                  href={r.href}
+                  className={`flex min-h-14 flex-col justify-center gap-0.5 rounded-card px-4 py-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy ${TONES[r.tone]}`}
+                >
+                  <span className="text-[15px] font-semibold">{r.title}</span>
+                  <span className="text-[13px]">{r.sub}</span>
+                </Link>
+              ) : (
+                <p className="flex min-h-14 flex-col justify-center gap-0.5 rounded-card border border-border bg-surface px-4 py-3">
+                  <span className="text-[15px] font-semibold">{r.emptyTitle}</span>
+                  <span className="text-[13px] text-muted">{r.sub}</span>
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
       </section>
-      <p className="text-[15px] leading-normal text-muted">
-        Здесь появятся поиск, места хранения и сроки годности.
-      </p>
+
+      <section aria-labelledby="categories-title" className="flex flex-col gap-2">
+        <h2 id="categories-title" className={sectionTitleClass}>
+          Категории
+        </h2>
+        <ul className="grid grid-cols-2 gap-2">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <Link
+                href={searchHref({ categoryId: c.id })}
+                className="flex min-h-16 items-center rounded-card border border-border bg-surface px-4 py-3 text-sm leading-snug font-semibold no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+              >
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <form action={signOut}>
-        <button
-          type="submit"
-          className="flex min-h-12 w-full items-center justify-center rounded-button border border-border bg-surface px-4 text-[15px] font-semibold text-navy hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-        >
+        <button type="submit" className={`${secondaryButtonClass} min-h-12 w-full`}>
           Выйти
         </button>
       </form>

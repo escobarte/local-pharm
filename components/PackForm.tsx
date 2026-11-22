@@ -1,0 +1,102 @@
+"use client";
+
+import { useActionState } from "react";
+import type { ActionState, FormAction } from "@/lib/storage/action-state";
+import { initialActionState } from "@/lib/storage/action-state";
+import { FormField, fieldAria } from "./FormField";
+import { PlacePicker, usePlaceSelection, type PlaceBox } from "./PlacePicker";
+import { SubmitButton } from "./SubmitButton";
+import { errorBoxClass, inputClass, primaryButtonClass } from "./ui";
+
+type Props = {
+  action: FormAction;
+  /** "create": new pack (quantity + expiry + place). "move": only the place. */
+  mode: "create" | "move";
+  boxes: PlaceBox[];
+  /** Hidden ids sent with the action. */
+  fields: Record<string, string>;
+  initialBoxId: string;
+  initialCompartmentId: string;
+  submitLabel: string;
+};
+
+/** Form for "Добавить упаковку" and "Переложить": same layout as the Add screen. */
+export function PackForm({
+  action,
+  mode,
+  boxes,
+  fields,
+  initialBoxId,
+  initialCompartmentId,
+  submitLabel,
+}: Props) {
+  const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
+  const errors = state.fieldErrors ?? {};
+  const v = (key: string, fallback = "") => state.values?.[key] ?? fallback;
+  const place = usePlaceSelection(
+    boxes,
+    v("boxId", initialBoxId),
+    v("compartmentId", initialCompartmentId),
+  );
+  const idError = errors.medicationId ?? errors.packId;
+
+  return (
+    <form action={formAction} className="flex flex-1 flex-col" noValidate>
+      {Object.entries(fields).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
+      <main className="flex flex-1 flex-col gap-4 px-5 pb-4">
+        {state.message || idError ? (
+          <p role="alert" className={errorBoxClass}>
+            {state.message ?? idError}
+          </p>
+        ) : null}
+
+        <div className="grid grid-cols-2 gap-2.5">
+          {mode === "create" ? (
+            <>
+              <FormField label="Количество, шт." htmlFor="quantity" error={errors.quantity}>
+                <input
+                  {...fieldAria("quantity", errors.quantity)}
+                  name="quantity"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  maxLength={4}
+                  autoComplete="off"
+                  defaultValue={v("quantity", "1")}
+                  className={inputClass}
+                />
+              </FormField>
+              <FormField
+                label="Годен до"
+                htmlFor="expiry"
+                error={errors.expiry}
+                hint={errors.expiry ? undefined : "ММ/ГГГГ, можно пусто"}
+              >
+                <input
+                  {...fieldAria("expiry", errors.expiry, "hint")}
+                  name="expiry"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={10}
+                  autoComplete="off"
+                  placeholder="12/2026"
+                  defaultValue={v("expiry")}
+                  className={inputClass}
+                />
+              </FormField>
+            </>
+          ) : null}
+          <PlacePicker boxes={boxes} selection={place} error={errors.compartmentId} />
+        </div>
+      </main>
+
+      <div className="sticky bottom-0 border-t border-tint bg-surface px-5 pt-3 pb-6">
+        <SubmitButton className={primaryButtonClass} disabled={place.compartments.length === 0}>
+          {submitLabel}
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}

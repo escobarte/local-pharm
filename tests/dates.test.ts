@@ -87,3 +87,12 @@ test("expiryStatus across month and year boundaries", () => {
 test("todayIso uses the ISO date part", () => {
   assert.equal(todayIso(new Date("2026-11-21T23:59:59Z")), "2026-11-21");
 });
+
+import { formatDate } from "../lib/dates.ts";
+
+test("formatDate", () => {
+  assert.equal(formatDate("2026-03-05"), "05.03.2026");
+  assert.equal(formatDate("2026-12-31"), "31.12.2026", "not shortened to MM/YYYY");
+  assert.equal(formatDate(null), "");
+  assert.equal(formatDate("garbage"), "");
+});

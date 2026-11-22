@@ -19,6 +19,7 @@ async function client() {
 type RawPack = {
   id: string;
   compartment_id: string;
+  medication_id: string;
   quantity: number;
   expiry_date: string | null;
   medications: {
@@ -31,12 +32,13 @@ type RawPack = {
 };
 
 const PACK_SELECT =
-  "id, compartment_id, quantity, expiry_date, medications(name, active_ingredient, form, dosage, categories(name))";
+  "id, compartment_id, medication_id, quantity, expiry_date, medications(name, active_ingredient, form, dosage, categories(name))";
 
 function normalizePack(row: RawPack): PackRow {
   return {
     id: row.id,
     compartment_id: row.compartment_id,
+    medicationId: row.medication_id,
     quantity: row.quantity,
     expiry_date: row.expiry_date,
     medicationName: row.medications?.name ?? "Без названия",
@@ -138,10 +140,10 @@ export type AddFormBox = {
   compartments: { id: string; code: string }[];
 };
 
-export async function getAddFormData(): Promise<{ categories: CategoryRow[]; boxes: AddFormBox[] }> {
+/** Boxes with their compartments: the options of every "where to put it" picker. */
+export async function getBoxOptions(): Promise<AddFormBox[]> {
   const supabase = await client();
-  const [categories, boxes, compartments] = await Promise.all([
-    getCategories(),
+  const [boxes, compartments] = await Promise.all([
     supabase.from("boxes").select("id, name, number").order("created_at"),
     supabase.from("compartments").select("id, box_id, code"),
   ]);
@@ -155,16 +157,18 @@ export async function getAddFormData(): Promise<{ categories: CategoryRow[]; box
     byBox.set(c.box_id, list);
   }
 
-  return {
-    categories,
-    boxes: ((boxes.data ?? []) as Pick<BoxRow, "id" | "name" | "number">[])
-      .map((b) => ({ ...b, compartments: sortByCode(byBox.get(b.id) ?? []) }))
-      .sort(
-        (a, b) =>
-          (a.number ?? "").localeCompare(b.number ?? "", "ru", { numeric: true }) ||
-          a.name.localeCompare(b.name, "ru", { numeric: true }),
-      ),
-  };
+  return ((boxes.data ?? []) as Pick<BoxRow, "id" | "name" | "number">[])
+    .map((b) => ({ ...b, compartments: sortByCode(byBox.get(b.id) ?? []) }))
+    .sort(
+      (a, b) =>
+        (a.number ?? "").localeCompare(b.number ?? "", "ru", { numeric: true }) ||
+        a.name.localeCompare(b.name, "ru", { numeric: true }),
+    );
+}
+
+export async function getAddFormData(): Promise<{ categories: CategoryRow[]; boxes: AddFormBox[] }> {
+  const [categories, boxes] = await Promise.all([getCategories(), getBoxOptions()]);
+  return { categories, boxes };
 }
 
 export async function countBoxes(): Promise<number> {

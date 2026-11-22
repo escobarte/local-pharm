@@ -146,26 +146,28 @@ export default async function BoxPage({ params, searchParams }: Props) {
                     .filter(Boolean)
                     .join(" · ");
                   return (
-                    <li
-                      key={item.id}
-                      className="flex items-center gap-3 rounded-button bg-surface px-3.5 py-3"
-                    >
-                      <span className="flex size-10 flex-none items-center justify-center rounded-field bg-tint text-navy">
-                        <IconPill size={20} />
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="text-[15px] font-semibold break-words">
-                          {item.medicationName}
+                    <li key={item.id}>
+                      <Link
+                        href={`/medications/${item.medicationId}`}
+                        className="flex min-h-14 items-center gap-3 rounded-button bg-surface px-3.5 py-3 no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+                      >
+                        <span className="flex size-10 flex-none items-center justify-center rounded-field bg-tint text-navy">
+                          <IconPill size={20} />
                         </span>
-                        <span className="text-xs leading-snug text-muted">{meta}</span>
-                      </span>
-                      {badge ? (
-                        <span
-                          className={`flex-none rounded-tag px-2 py-1 text-[11px] font-semibold ${badge.classes}`}
-                        >
-                          {badge.label}
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="text-[15px] font-semibold break-words">
+                            {item.medicationName}
+                          </span>
+                          <span className="text-xs leading-snug text-muted">{meta}</span>
                         </span>
-                      ) : null}
+                        {badge ? (
+                          <span
+                            className={`flex-none rounded-tag px-2 py-1 text-[11px] font-semibold ${badge.classes}`}
+                          >
+                            {badge.label}
+                          </span>
+                        ) : null}
+                      </Link>
                     </li>
                   );
                 })}

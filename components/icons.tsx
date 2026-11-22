@@ -83,3 +83,10 @@ export const IconPill = (p: IconProps) => (
     <path d="M9.2 9.2l5.6 5.6" />
   </Svg>
 );
+
+export const IconSearch = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </Svg>
+);

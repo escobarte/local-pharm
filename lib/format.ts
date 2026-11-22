@@ -25,3 +25,24 @@ export function storageSummary(counts: { zones: number; boxes: number; packs: nu
 export function packsShort(n: number): string {
   return n === 0 ? "пусто" : `${n} упак.`;
 }
+
+/** "12 шт." — "шт." is an abbreviation and never declines. */
+export const pcsLabel = (n: number) => `${n} шт.`;
+
+export const medicationsLabel = (n: number) =>
+  `${n} ${plural(n, "препарат", "препарата", "препаратов")}`;
+
+/** "Найден: 1 препарат" / "Найдено: 3 препарата" / "Найдено: 11 препаратов". */
+export const foundLabel = (n: number) =>
+  `${plural(n, "Найден", "Найдено", "Найдено")}: ${medicationsLabel(n)}`;
+
+/** Home "Внимание" rows: the verb agrees with the count. */
+export const expiringText = (n: number) =>
+  `${n} ${plural(n, "упаковка истекает", "упаковки истекают", "упаковок истекают")}`;
+export const expiredText = (n: number) =>
+  `${n} ${plural(n, "упаковка просрочена", "упаковки просрочены", "упаковок просрочено")}`;
+export const lowStockText = (n: number) =>
+  `${n} ${plural(n, "упаковка заканчивается", "упаковки заканчиваются", "упаковок заканчиваются")}`;
+
+/** "ещё 1 место" / "ещё 2 места" / "ещё 5 мест". */
+export const morePlacesLabel = (n: number) => `ещё ${n} ${plural(n, "место", "места", "мест")}`;

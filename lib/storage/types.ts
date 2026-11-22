@@ -15,6 +15,7 @@ export type CompartmentRow = { id: string; box_id: string; code: string };
 export type PackRow = {
   id: string;
   compartment_id: string;
+  medicationId: string;
   quantity: number;
   expiry_date: string | null;
   medicationName: string;

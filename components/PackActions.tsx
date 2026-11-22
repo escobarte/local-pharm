@@ -1,0 +1,56 @@
+"use client";
+
+import { useActionState } from "react";
+import { setLowStock, takeOne } from "@/lib/medications/actions";
+import { initialActionState, type ActionState } from "@/lib/storage/action-state";
+import { SubmitButton } from "./SubmitButton";
+import { errorBoxClass, primaryButtonClass, secondaryButtonClass, warnButtonClass } from "./ui";
+
+type Props = { packId: string; quantity: number; lowStock: boolean };
+
+/** "Взял 1 шт." and "Заканчивается" for one pack. Both are Server Actions. */
+export function PackActions({ packId, quantity, lowStock }: Props) {
+  const [takeState, takeAction] = useActionState<ActionState, FormData>(takeOne, initialActionState);
+  const [lowState, lowAction] = useActionState<ActionState, FormData>(
+    setLowStock,
+    initialActionState,
+  );
+  const error = takeState.message ?? lowState.message;
+  const notice = lowState.notice ?? takeState.notice;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <form action={takeAction}>
+          <input type="hidden" name="packId" value={packId} />
+          <SubmitButton
+            className={`${primaryButtonClass} min-h-12 w-full text-sm`}
+            pendingText="Списываем…"
+            disabled={quantity <= 0}
+          >
+            Взял 1 шт.
+          </SubmitButton>
+        </form>
+        <form action={lowAction}>
+          <input type="hidden" name="packId" value={packId} />
+          <input type="hidden" name="lowStock" value={lowStock ? "false" : "true"} />
+          <SubmitButton
+            className={`${lowStock ? warnButtonClass : secondaryButtonClass} min-h-12 w-full text-sm`}
+            pressed={lowStock}
+            pendingText="Сохраняем…"
+          >
+            {lowStock ? "Заканчивается ✓" : "Заканчивается"}
+          </SubmitButton>
+        </form>
+      </div>
+      {error ? (
+        <p role="alert" className={errorBoxClass}>
+          {error}
+        </p>
+      ) : null}
+      <p role="status" className="min-h-4 text-xs text-muted">
+        {notice ?? ""}
+      </p>
+    </div>
+  );
+}

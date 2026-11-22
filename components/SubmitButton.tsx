@@ -8,13 +8,15 @@ type Props = {
   pendingText?: string;
   className: string;
   disabled?: boolean;
+  /** For toggle-style buttons (e.g. "Заканчивается"). */
+  pressed?: boolean;
 };
 
 /** Submit button that disables itself while the Server Action is running. */
-export function SubmitButton({ children, pendingText = "Сохраняем…", className, disabled }: Props) {
+export function SubmitButton({ children, pendingText = "Сохраняем…", className, disabled, pressed }: Props) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className={className} disabled={pending || disabled} aria-busy={pending}>
+    <button type="submit" className={className} disabled={pending || disabled} aria-busy={pending} aria-pressed={pressed}>
       {pending ? pendingText : children}
     </button>
   );

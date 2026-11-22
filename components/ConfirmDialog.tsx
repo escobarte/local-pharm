@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useId, useRef } from "react";
 import type { ActionState, FormAction } from "@/lib/storage/action-state";
 import { initialActionState } from "@/lib/storage/action-state";
 import { SubmitButton } from "./SubmitButton";
@@ -28,6 +28,7 @@ export function ConfirmDialog({
   fields,
 }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
 
   return (
@@ -37,14 +38,14 @@ export function ConfirmDialog({
       </button>
       <dialog
         ref={ref}
-        aria-labelledby="confirm-title"
+        aria-labelledby={titleId}
         className="m-auto w-[calc(100%-2.5rem)] max-w-sm rounded-card bg-surface p-5 text-navy backdrop:bg-navy/60"
       >
         <form action={formAction} className="flex flex-col gap-4">
           {Object.entries(fields).map(([name, value]) => (
             <input key={name} type="hidden" name={name} value={value} />
           ))}
-          <h2 id="confirm-title" className="text-xl font-bold">
+          <h2 id={titleId} className="text-xl font-bold">
             {title}
           </h2>
           <p className="text-[15px] leading-normal">{description}</p>

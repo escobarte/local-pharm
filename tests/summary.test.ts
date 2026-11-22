@@ -6,6 +6,7 @@ import type { BoxRow, CompartmentRow, LocationRow, PackRow } from "../lib/storag
 const pack = (id: string, compartment_id: string, categoryName: string | null, name = "X"): PackRow => ({
   id,
   compartment_id,
+  medicationId: `m-${id}`,
   quantity: 1,
   expiry_date: null,
   medicationName: name,

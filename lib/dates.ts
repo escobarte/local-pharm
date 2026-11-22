@@ -72,6 +72,12 @@ export function formatExpiry(iso: IsoDate | null | undefined): string {
   return `${m[3]}.${m[2]}.${m[1]}`;
 }
 
+/** "2026-03-05" → "05.03.2026" (a plain calendar date, e.g. when a pack was opened). */
+export function formatDate(iso: IsoDate | null | undefined): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : "";
+}
+
 export type ExpiryStatus = "none" | "expired" | "soon" | "ok";
 
 export const SOON_DAYS = 30;

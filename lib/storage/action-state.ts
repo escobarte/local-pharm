@@ -6,6 +6,8 @@ import type { FieldErrors } from "./validation";
 export type ActionState = {
   /** Form-level error (shown above the form). */
   message?: string;
+  /** Short success note for in-place actions (announced politely, e.g. "Осталось 3 шт."). */
+  notice?: string;
   /** Per-field errors keyed by field name. */
   fieldErrors?: FieldErrors;
   /** Submitted values, so the form can refill itself (React resets forms after an action). */
