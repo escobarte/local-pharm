@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BoxForm } from "@/components/BoxForm";
+import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { createBox } from "@/lib/storage/actions";
 import { DEFAULT_BOX_COLOR } from "@/lib/storage/box-colors";
@@ -11,8 +12,8 @@ export default async function NewBoxPage() {
   const [zones, boxCount] = await Promise.all([getLocations(), countBoxes()]);
 
   return (
-    <>
-      <ScreenHeader title="Новая коробка" backHref="/storage" backIcon="close" />
+    <Page>
+      <ScreenHeader title="Новая коробка" backHref="/storage" backIcon="close" heading />
       <BoxForm
         action={createBox}
         zones={zones}
@@ -26,6 +27,6 @@ export default async function NewBoxPage() {
           number: String(boxCount + 1),
         }}
       />
-    </>
+    </Page>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BoxForm } from "@/components/BoxForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { dangerOutlineButtonClass, sectionTitleClass } from "@/components/ui";
 import { deleteBox, updateBox } from "@/lib/storage/actions";
@@ -17,8 +18,8 @@ export default async function EditBoxPage({ params }: { params: Promise<{ boxId:
   const zones = await getLocations();
 
   return (
-    <>
-      <ScreenHeader title="Изменить коробку" backHref={`/storage/${box.id}`} backIcon="close" />
+    <Page>
+      <ScreenHeader title="Изменить коробку" backHref={`/storage/${box.id}`} backIcon="close" heading />
       <BoxForm
         action={updateBox}
         zones={zones}
@@ -32,7 +33,7 @@ export default async function EditBoxPage({ params }: { params: Promise<{ boxId:
           number: box.number ?? "",
         }}
       />
-      <section className="mt-auto flex flex-col gap-3 border-t border-tint px-5 py-6">
+      <section className="mt-auto flex flex-col gap-3 border-t border-tint px-5 py-6 lg:mt-8 lg:max-w-xl lg:px-0">
         <h2 className={sectionTitleClass}>Опасная зона</h2>
         <ConfirmDialog
           triggerLabel="Удалить коробку"
@@ -44,6 +45,6 @@ export default async function EditBoxPage({ params }: { params: Promise<{ boxId:
           fields={{ boxId: box.id }}
         />
       </section>
-    </>
+    </Page>
   );
 }

@@ -1,12 +1,21 @@
-import Link from "next/link";
 import { formatExpiry } from "@/lib/dates";
 import { morePlacesLabel, packsShort, pcsLabel } from "@/lib/format";
 import { placeLabel, type SearchResult } from "@/lib/medications/search";
 import { ExpiryBadge, LowStockBadge } from "./Badge";
+import { DesktopSelectLink } from "./DesktopSelectLink";
 import { IconPill, IconStorage } from "./icons";
 
-/** One search result: name, substance, badges, place, expiry and quantity. */
-export function MedicationCard({ med, summary }: SearchResult) {
+type Props = SearchResult & {
+  /** Desktop: the card selects the medication in the side panel of the results. */
+  selectHref: string;
+  selected: boolean;
+};
+
+/**
+ * One search result: name, substance, badges, place, expiry and quantity.
+ * Mobile: opens the medication page. Desktop (lg): selects it in the panel.
+ */
+export function MedicationCard({ med, summary, selectHref, selected }: Props) {
   const sub = [med.activeIngredient, med.form, med.dosage].filter(Boolean).join(" · ");
   const meta = [
     summary.packCount === 0
@@ -22,9 +31,11 @@ export function MedicationCard({ med, summary }: SearchResult) {
 
   return (
     <li>
-      <Link
+      <DesktopSelectLink
         href={`/medications/${med.id}`}
-        className="flex min-h-11 flex-col gap-2.5 rounded-card border border-border bg-surface p-4 no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+        desktopHref={selectHref}
+        selected={selected}
+        className="flex min-h-11 flex-col gap-2.5 rounded-card border border-border bg-surface p-4 no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:data-[selected=true]:border-navy lg:data-[selected=true]:ring-1 lg:data-[selected=true]:ring-navy"
       >
         <span className="flex items-start gap-3">
           <span className="flex size-10 flex-none items-center justify-center rounded-field bg-tint text-navy">
@@ -53,7 +64,7 @@ export function MedicationCard({ med, summary }: SearchResult) {
           )}
         </span>
         {meta ? <span className="text-[13px] text-muted">{meta}</span> : null}
-      </Link>
+      </DesktopSelectLink>
     </li>
   );
 }

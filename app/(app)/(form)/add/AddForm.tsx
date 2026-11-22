@@ -6,8 +6,9 @@ import { PlacePicker, usePlaceSelection, type PlaceBox } from "@/components/Plac
 import { SubmitButton } from "@/components/SubmitButton";
 import {
   errorBoxClass,
+  formFooterClass,
+  formSubmitClass,
   inputClass,
-  primaryButtonClass,
   sectionTitleClass,
 } from "@/components/ui";
 import type { ActionState, FormAction } from "@/lib/storage/action-state";
@@ -20,6 +21,9 @@ type Props = {
   initialBoxId: string;
   initialCompartmentId: string;
 };
+
+/** Desktop: "Препарат" and "Упаковка" are two cards side by side. */
+const columnClass = "lg:gap-4 lg:rounded-card lg:border lg:border-border lg:bg-surface lg:p-6";
 
 export function AddForm({ action, categories, boxes, initialBoxId, initialCompartmentId }: Props) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
@@ -34,14 +38,17 @@ export function AddForm({ action, categories, boxes, initialBoxId, initialCompar
 
   return (
     <form action={formAction} className="flex flex-1 flex-col" noValidate>
-      <main className="flex flex-1 flex-col gap-4 px-5 pb-4">
+      <main className="flex flex-1 flex-col gap-4 px-5 pb-4 lg:grid lg:flex-none lg:grid-cols-2 lg:items-start lg:gap-5 lg:p-0">
         {state.message ? (
-          <p role="alert" className={errorBoxClass}>
+          <p role="alert" className={`${errorBoxClass} lg:col-span-2`}>
             {state.message}
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-2.5">
+        <section aria-labelledby="medication-title" className={`${columnClass} flex flex-col gap-2.5`}>
+          <h2 id="medication-title" className={`${sectionTitleClass} hidden lg:block`}>
+            Препарат
+          </h2>
           <FormField label="Название" htmlFor="name" error={errors.name}>
             <input
               {...fieldAria("name", errors.name)}
@@ -108,9 +115,9 @@ export function AddForm({ action, categories, boxes, initialBoxId, initialCompar
               ))}
             </select>
           </FormField>
-        </div>
+        </section>
 
-        <section aria-labelledby="pack-title" className="flex flex-col gap-2.5">
+        <section aria-labelledby="pack-title" className={`${columnClass} flex flex-col gap-2.5`}>
           <h2 id="pack-title" className={sectionTitleClass}>
             Упаковка
           </h2>
@@ -151,8 +158,8 @@ export function AddForm({ action, categories, boxes, initialBoxId, initialCompar
         </section>
       </main>
 
-      <div className="sticky bottom-0 border-t border-tint bg-surface px-5 pt-3 pb-6">
-        <SubmitButton className={primaryButtonClass} disabled={place.compartments.length === 0}>
+      <div className={formFooterClass}>
+        <SubmitButton className={formSubmitClass} disabled={place.compartments.length === 0}>
           Сохранить
         </SubmitButton>
       </div>

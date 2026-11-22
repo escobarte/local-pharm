@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PackForm } from "@/components/PackForm";
+import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { pcsLabel } from "@/lib/format";
 import { movePack } from "@/lib/medications/actions";
@@ -22,9 +23,9 @@ export default async function MovePackPage({ params }: Props) {
   const boxes = await getBoxOptions();
 
   return (
-    <>
-      <ScreenHeader title="Переложить" backHref={`/medications/${med.id}`} backIcon="close" />
-      <div className="flex flex-col gap-1 px-5 pb-3">
+    <Page>
+      <ScreenHeader title="Переложить" backHref={`/medications/${med.id}`} backIcon="close" heading />
+      <div className="flex flex-col gap-1 px-5 pb-3 lg:px-0">
         <p className="text-[15px] font-semibold break-words">
           {med.name}
           {med.dosage ? ` ${med.dosage}` : ""}
@@ -42,6 +43,6 @@ export default async function MovePackPage({ params }: Props) {
         initialCompartmentId={pack.place?.compartmentId ?? ""}
         submitLabel="Переложить"
       />
-    </>
+    </Page>
   );
 }

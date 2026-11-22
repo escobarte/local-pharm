@@ -2,36 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconCart, IconClock, IconHome, IconPlus, IconStorage } from "./icons";
+import { IconPlus } from "./icons";
+import { NAV_ITEMS, isNavActive } from "./nav";
 
-const ITEMS = [
-  { href: "/", label: "Главная", Icon: IconHome },
-  { href: "/storage", label: "Хранение", Icon: IconStorage },
-  { href: "/add", label: "Добавить препарат", Icon: IconPlus, primary: true },
-  { href: "/expiry", label: "Сроки", Icon: IconClock },
-  { href: "/shopping", label: "Покупки", Icon: IconCart },
-] as const;
-
-function isActive(pathname: string, href: string): boolean {
-  // Home owns the search flow: results and medication cards belong to it.
-  if (href === "/") {
-    return pathname === "/" || pathname.startsWith("/search") || pathname.startsWith("/medications");
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
+/** Mobile menu. From lg (1024 px) the side menu replaces it (components/SideNav.tsx). */
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
     <nav
       aria-label="Основная навигация"
-      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)]"
+      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)] lg:hidden"
     >
       <ul className="mx-auto flex max-w-md items-end px-2 pt-2">
-        {ITEMS.map((item) => {
-          const active = isActive(pathname, item.href);
-          if ("primary" in item) {
+        {NAV_ITEMS.map((item) => {
+          const active = isNavActive(pathname, item.href);
+          if (item.primary) {
             return (
               <li key={item.href} className="flex flex-1 justify-center">
                 <Link

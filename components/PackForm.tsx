@@ -6,7 +6,7 @@ import { initialActionState } from "@/lib/storage/action-state";
 import { FormField, fieldAria } from "./FormField";
 import { PlacePicker, usePlaceSelection, type PlaceBox } from "./PlacePicker";
 import { SubmitButton } from "./SubmitButton";
-import { errorBoxClass, inputClass, primaryButtonClass } from "./ui";
+import { errorBoxClass, formFooterClass, formSubmitClass, inputClass } from "./ui";
 
 type Props = {
   action: FormAction;
@@ -45,7 +45,7 @@ export function PackForm({
       {Object.entries(fields).map(([name, value]) => (
         <input key={name} type="hidden" name={name} value={value} />
       ))}
-      <main className="flex flex-1 flex-col gap-4 px-5 pb-4">
+      <main className="flex flex-1 flex-col gap-4 px-5 pb-4 lg:max-w-xl lg:flex-none lg:p-0">
         {state.message || idError ? (
           <p role="alert" className={errorBoxClass}>
             {state.message ?? idError}
@@ -92,8 +92,8 @@ export function PackForm({
         </div>
       </main>
 
-      <div className="sticky bottom-0 border-t border-tint bg-surface px-5 pt-3 pb-6">
-        <SubmitButton className={primaryButtonClass} disabled={place.compartments.length === 0}>
+      <div className={`${formFooterClass} lg:max-w-xl`}>
+        <SubmitButton className={formSubmitClass} disabled={place.compartments.length === 0}>
           {submitLabel}
         </SubmitButton>
       </div>

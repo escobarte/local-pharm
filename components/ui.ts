@@ -36,3 +36,13 @@ export const errorBoxClass =
 
 export const successBoxClass =
   "flex items-center gap-2 rounded-field bg-tint px-4 py-3 text-[13px] leading-normal font-semibold text-navy";
+
+/**
+ * Bottom bar with the submit button of long forms. Sticky on mobile; on
+ * desktop it is a plain row under the form, button on the right.
+ */
+export const formFooterClass =
+  "sticky bottom-0 border-t border-tint bg-surface px-5 pt-3 pb-6 lg:static lg:flex lg:justify-end lg:border-0 lg:bg-transparent lg:px-0 lg:pt-5 lg:pb-0";
+
+/** Submit button inside `formFooterClass`: natural width on desktop. */
+export const formSubmitClass = `${primaryButtonClass} lg:min-w-56 lg:px-10`;

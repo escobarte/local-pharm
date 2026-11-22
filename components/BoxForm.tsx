@@ -34,7 +34,11 @@ export function BoxForm({ action, zones, initial, submitLabel, cancelHref }: Pro
   const color = v("color") || DEFAULT_BOX_COLOR;
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col gap-4 px-5 pb-6" noValidate>
+    <form
+      action={formAction}
+      className="flex flex-1 flex-col gap-4 px-5 pb-6 lg:max-w-xl lg:flex-none lg:p-0"
+      noValidate
+    >
       {initial.boxId ? <input type="hidden" name="boxId" value={initial.boxId} /> : null}
 
       {state.message ? (

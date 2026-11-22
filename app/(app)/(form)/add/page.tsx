@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { primaryButtonClass } from "@/components/ui";
 import { createMedicationWithPack } from "@/lib/storage/actions";
@@ -29,13 +30,13 @@ export default async function AddPage({ searchParams }: Props) {
   const closeHref = preselected ? `/storage/${preselected.id}` : "/";
 
   return (
-    <>
-      <ScreenHeader title="Добавить препарат" backHref={closeHref} backIcon="close" />
+    <Page>
+      <ScreenHeader title="Добавить препарат" backHref={closeHref} backIcon="close" heading />
 
       <div
         role="tablist"
         aria-label="Способ добавления"
-        className="mx-5 mt-1 mb-3 grid grid-cols-3 gap-1 rounded-button bg-tint p-1"
+        className="mx-5 mt-1 mb-3 grid grid-cols-3 gap-1 rounded-button bg-tint p-1 lg:mx-0 lg:mt-0 lg:mb-5 lg:max-w-105"
       >
         {MODES.map((m) => (
           <button
@@ -55,7 +56,7 @@ export default async function AddPage({ searchParams }: Props) {
       </div>
 
       {boxes.length === 0 ? (
-        <main className="flex flex-col gap-4 px-5 pb-6">
+        <main className="flex flex-col gap-4 px-5 pb-6 lg:max-w-xl lg:p-0">
           <p className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">
             Сначала создайте коробку и отсек, куда положить упаковку.
           </p>
@@ -72,6 +73,6 @@ export default async function AddPage({ searchParams }: Props) {
           initialCompartmentId={cellId}
         />
       )}
-    </>
+    </Page>
   );
 }

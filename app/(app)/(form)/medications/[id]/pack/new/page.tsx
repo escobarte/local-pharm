@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PackForm } from "@/components/PackForm";
+import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { primaryButtonClass } from "@/components/ui";
 import { createPack } from "@/lib/medications/actions";
@@ -23,14 +24,19 @@ export default async function NewPackPage({ params }: Props) {
   const lastPlace = sortPacks(med.packs).find((p) => p.place)?.place;
 
   return (
-    <>
-      <ScreenHeader title="Добавить упаковку" backHref={`/medications/${med.id}`} backIcon="close" />
-      <p className="px-5 pb-3 text-[15px] font-semibold break-words">
+    <Page>
+      <ScreenHeader
+        title="Добавить упаковку"
+        backHref={`/medications/${med.id}`}
+        backIcon="close"
+        heading
+      />
+      <p className="px-5 pb-3 text-[15px] font-semibold break-words lg:px-0">
         {med.name}
         {med.dosage ? ` ${med.dosage}` : ""}
       </p>
       {boxes.length === 0 ? (
-        <main className="flex flex-col gap-4 px-5 pb-6">
+        <main className="flex flex-col gap-4 px-5 pb-6 lg:max-w-xl lg:p-0">
           <p className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">
             Сначала создайте коробку и отсек, куда положить упаковку.
           </p>
@@ -49,6 +55,6 @@ export default async function NewPackPage({ params }: Props) {
           submitLabel="Сохранить"
         />
       )}
-    </>
+    </Page>
   );
 }

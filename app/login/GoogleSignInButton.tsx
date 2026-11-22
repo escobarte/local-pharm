@@ -50,7 +50,7 @@ export function GoogleSignInButton({ next }: Props) {
         {pending ? "Переходим в Google…" : "Войти через Google"}
       </button>
       {failed ? (
-        <p role="alert" className="text-center text-[13px] leading-normal text-white">
+        <p role="alert" className="text-center text-[13px] leading-normal text-white lg:text-danger-fg">
           Не удалось начать вход. Попробуйте ещё раз.
         </p>
       ) : null}
