@@ -9,6 +9,7 @@ import {
   wordFilters,
 } from "./search";
 import type { RegistryItem } from "./types";
+import { barcodeLookupVariants } from "@/lib/barcode";
 
 // Reads go through the user's session: RLS (is_allowed) decides visibility.
 // Search errors do not throw — the Add screen stays usable in manual mode.
@@ -125,4 +126,20 @@ export async function getRegistryItem(code: string): Promise<RegistryItem | null
   } catch {
     return null;
   }
+}
+
+/**
+ * Registry rows with this barcode (normalized EAN; the export may hold the
+ * 12-digit UPC spelling). Throws on errors: the scan screen shows them.
+ */
+export async function findRegistryByBarcode(barcode: string): Promise<RegistryItem[]> {
+  const supabase = await client();
+  const { data, error } = await supabase
+    .from("amdm_registry")
+    .select(SELECT)
+    .in("barcode", barcodeLookupVariants(barcode))
+    .order("name")
+    .limit(REGISTRY_RESULT_LIMIT);
+  if (error) throw new Error(`amdm_registry by barcode: ${error.message}`);
+  return ((data ?? []) as RawRow[]).map(toItem);
 }

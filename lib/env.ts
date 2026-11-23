@@ -35,3 +35,18 @@ export function getSupabaseEnv(): SupabaseEnv | null {
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   });
 }
+
+/**
+ * openFDA label endpoint. OPENFDA_API_URL (server-only, optional) overrides
+ * the public API — used by local tests with a stub. Invalid values are ignored.
+ */
+export function readOpenFdaUrl(raw: string | undefined, fallback: string): string {
+  const value = raw?.trim();
+  if (!value) return fallback;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:" ? value : fallback;
+  } catch {
+    return fallback;
+  }
+}

@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireClient, run, valuesOf } from "@/lib/action-utils";
+import { NETWORK_ERROR, requireClient, run, valuesOf } from "@/lib/action-utils";
+import { findDuplicate } from "@/lib/medications/duplicates";
+import { findExistingMedications } from "@/lib/medications/queries";
 import type { ActionState } from "./action-state";
 import {
   formDataToRaw,
@@ -148,10 +150,29 @@ export async function createMedicationWithPack(
     return { fieldErrors: { compartmentId: "Отсек не найден. Выберите другой." }, values };
   }
 
+  // Duplicate protection: the same AMDM row or barcode is already at home →
+  // offer a pack to the existing medication (the form shows both choices).
+  // "Создать отдельную запись" re-submits with allowDuplicate=1.
+  if (!input.allowDuplicate && (input.registryCode || input.barcode)) {
+    try {
+      const existing = await findExistingMedications({ registryCode: input.registryCode, barcode: input.barcode });
+      const duplicate = findDuplicate(existing, { registryCode: input.registryCode, barcode: input.barcode });
+      if (duplicate) {
+        return {
+          duplicate: { id: duplicate.medication.id, name: duplicate.medication.name, reason: duplicate.reason },
+          values,
+        };
+      }
+    } catch {
+      return { message: NETWORK_ERROR, values };
+    }
+  }
+
   // One transactional RPC: no orphan medication if the pack fails.
-  // Manual mode → add_medication_with_pack (0002). Picked in the AMDM registry →
-  // add_registry_medication_with_pack (0004): source 'amdm', registry_code and
-  // barcode are read from the registry row in SQL, not taken from the form.
+  // A plain manual entry without barcode keeps using add_medication_with_pack
+  // (0002). Everything else — barcode, AMDM, openFDA — goes through
+  // add_medication_entry_with_pack (0005): it checks the source, the barcode
+  // format and, for AMDM, that the registry code exists (P0002 otherwise).
   const fields = {
     p_name: input.name,
     p_active_ingredient: input.activeIngredient,
@@ -162,12 +183,17 @@ export async function createMedicationWithPack(
     p_quantity: input.quantity,
     p_expiry_date: input.expiryDate,
   };
-  const registryCode = input.registryCode;
+  const plainManual = input.source === "manual" && !input.barcode;
   const saved = await run(
     () =>
-      registryCode
-        ? supabase.rpc("add_registry_medication_with_pack", { p_registry_code: registryCode, ...fields })
-        : supabase.rpc("add_medication_with_pack", fields),
+      plainManual
+        ? supabase.rpc("add_medication_with_pack", fields)
+        : supabase.rpc("add_medication_entry_with_pack", {
+            p_source: input.source,
+            p_registry_code: input.registryCode,
+            p_barcode: input.barcode,
+            ...fields,
+          }),
     "save-pack",
   );
   if (!saved.ok) return { message: saved.message, values };

@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/storage/validation";
+import { duplicateFilter, type ExistingMedication } from "./duplicates";
 import type { AttentionPack, CatalogMedication, CatalogPack } from "./types";
 
 // Reads go through the user's session, so RLS (is_allowed) filters rows.
@@ -34,13 +35,15 @@ type RawMedication = {
   dosage: string | null;
   indications: string | null;
   source: string;
+  barcode: string | null;
+  registry_code: string | null;
   category_id: string | null;
   categories: { name: string } | null;
   packs: RawPack[] | null;
 };
 
 const MEDICATION_SELECT =
-  "id, name, active_ingredient, form, dosage, indications, source, category_id, categories(name), " +
+  "id, name, active_ingredient, form, dosage, indications, source, barcode, registry_code, category_id, categories(name), " +
   "packs(id, quantity, expiry_date, opened_at, running_low, compartments(id, code, boxes(id, name, number)))";
 
 function normalizePack(row: RawPack): CatalogPack {
@@ -73,6 +76,8 @@ function normalizeMedication(row: RawMedication): CatalogMedication {
     dosage: row.dosage,
     indications: row.indications,
     source: row.source,
+    barcode: row.barcode,
+    registryCode: row.registry_code,
     categoryId: row.category_id,
     categoryName: row.categories?.name ?? null,
     packs: (row.packs ?? []).map(normalizePack),
@@ -104,4 +109,27 @@ export async function getAttentionPacks(): Promise<AttentionPack[]> {
   const { data, error } = await supabase.from("packs").select("expiry_date, running_low");
   if (error) throw new Error(`packs: ${error.message}`);
   return (data ?? []) as AttentionPack[];
+}
+
+/**
+ * Medications at home with the same AMDM code or barcode (any stored spelling).
+ * Used by the scanner and by the duplicate check before saving.
+ */
+export async function findExistingMedications(params: {
+  registryCode?: string | null;
+  barcode?: string | null;
+}): Promise<ExistingMedication[]> {
+  const filter = duplicateFilter(params);
+  if (!filter) return [];
+  const supabase = await client();
+  const { data, error } = await supabase
+    .from("medications")
+    .select("id, name, dosage, registry_code, barcode")
+    .or(filter)
+    .order("created_at")
+    .limit(20);
+  if (error) throw new Error(`medications by barcode: ${error.message}`);
+  return ((data ?? []) as { id: string; name: string; dosage: string | null; registry_code: string | null; barcode: string | null }[]).map(
+    (r) => ({ id: r.id, name: r.name, dosage: r.dosage, registryCode: r.registry_code, barcode: r.barcode }),
+  );
 }

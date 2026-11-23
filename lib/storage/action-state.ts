@@ -12,6 +12,8 @@ export type ActionState = {
   fieldErrors?: FieldErrors;
   /** Submitted values, so the form can refill itself (React resets forms after an action). */
   values?: Record<string, string>;
+  /** Add form: this medication is already at home — offer a pack to it instead. */
+  duplicate?: { id: string; name: string; reason: "registry" | "barcode" };
 };
 
 export const initialActionState: ActionState = {};

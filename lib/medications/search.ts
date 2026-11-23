@@ -3,6 +3,7 @@
 // can miss Cyrillic case folding, and a home medicine cabinet is a few hundred
 // rows, so filtering the already-loaded list is fast and fully testable.
 
+import { parseBarcode, sameBarcode } from "../barcode.ts";
 import { expiryStatus, type ExpiryStatus, type IsoDate } from "../dates.ts";
 import { isUuid } from "../storage/validation.ts";
 import type { AttentionPack, CatalogMedication, CatalogPack, PackPlace } from "./types.ts";
@@ -179,6 +180,28 @@ export function runSearch(
   );
 }
 
+/**
+ * Block «У вас дома» on the Add screen: a valid barcode matches medications
+ * with that barcode; any other query is the regular text search. Same order as
+ * the Search screen, at most `limit` medications.
+ */
+export function searchHome(
+  meds: readonly CatalogMedication[],
+  query: string,
+  today: IsoDate,
+  limit = 10,
+): SearchResult[] {
+  const q = query.replace(/\s+/g, " ").trim().slice(0, MAX_QUERY_LENGTH);
+  if (!q) return [];
+  const barcode = parseBarcode(q);
+  const found = barcode.ok
+    ? sortMedications(
+        meds.filter((m) => sameBarcode(m.barcode, barcode.value)).map((med) => ({ med, summary: summarize(med, today) })),
+      )
+    : runSearch(meds, { q, categoryId: null, attention: null }, today);
+  return found.slice(0, limit);
+}
+
 // ---------- Home "Внимание" ----------
 
 export type AttentionCounts = { expiring: number; expired: number; lowStock: number };
@@ -201,7 +224,7 @@ const SOURCE_NAMES: Record<string, string> = {
   manual: "Вручную",
   local: "Своя база",
   amdm: "Реестр AMDM",
-  openfda: "openFDA",
+  openfda: "Международные базы (openFDA)",
 };
 
 /** Short source tag for result cards: "Вручную", "Реестр AMDM". */

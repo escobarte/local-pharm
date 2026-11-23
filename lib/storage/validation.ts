@@ -1,6 +1,7 @@
 // Server-side form validation. Pure: takes a plain object, returns a typed
 // result with Russian messages. Used by Server Actions and unit tests.
 
+import { parseOptionalBarcode } from "../barcode.ts";
 import { parseExpiryInput } from "../dates.ts";
 import { isBoxColor, type BoxColorKey } from "./box-colors.ts";
 
@@ -114,7 +115,15 @@ export type MedicationPackInput = {
   compartmentId: string;
   /** AMDM registry code when the medication was picked in the registry search; null in manual mode. */
   registryCode: string | null;
+  /** Normalized EAN-13 / EAN-8 (UPC-A becomes EAN-13), or null. */
+  barcode: string | null;
+  /** Where the values came from. "amdm" iff registryCode is set; otherwise "manual" or "openfda". */
+  source: MedicationEntrySource;
+  /** The user chose "Создать отдельную запись" despite an existing duplicate. */
+  allowDuplicate: boolean;
 };
+
+export type MedicationEntrySource = "manual" | "amdm" | "openfda";
 
 export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationPackInput> {
   const errors: FieldErrors = {};
@@ -155,6 +164,18 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
     errors.registryCode = "Препарат из реестра выбран неверно. Найдите его в поиске ещё раз.";
   }
 
+  const barcode = parseOptionalBarcode(text(raw, "barcode"));
+  if (!barcode.ok) errors.barcode = barcode.error;
+
+  // The source is only a label; "amdm" additionally needs a registry code that
+  // the database checks. Anything unknown is treated as a manual entry.
+  const registryCode = registryRaw === "" ? null : registryRaw;
+  const source: MedicationEntrySource = registryCode
+    ? "amdm"
+    : text(raw, "source") === "openfda"
+      ? "openfda"
+      : "manual";
+
   return finish(errors, {
     name,
     activeIngredient,
@@ -164,7 +185,10 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
     quantity,
     expiryDate: expiry.ok ? expiry.value : null,
     compartmentId,
-    registryCode: registryRaw === "" ? null : registryRaw,
+    registryCode,
+    barcode: barcode.ok ? barcode.value : null,
+    source,
+    allowDuplicate: text(raw, "allowDuplicate") === "1",
   });
 }
 

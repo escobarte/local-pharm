@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { FormField, fieldAria } from "@/components/FormField";
 import { PlacePicker, usePlaceSelection, type PlaceBox } from "@/components/PlacePicker";
@@ -9,6 +10,8 @@ import {
   formFooterClass,
   formSubmitClass,
   inputClass,
+  primaryButtonClass,
+  secondaryButtonClass,
   sectionTitleClass,
 } from "@/components/ui";
 import type { ActionState, FormAction } from "@/lib/storage/action-state";
@@ -22,8 +25,12 @@ type Props = {
   initialCompartmentId: string;
   /** AMDM registry code when the medication was picked in the registry search. */
   registryCode?: string;
-  /** Prefilled values (from the registry): name, activeIngredient, form, dosage, categoryId. */
+  /** Prefilled values: name, activeIngredient, form, dosage, categoryId, barcode. */
   initialValues?: Record<string, string>;
+  /** "openfda" when prefilled from the openFDA block; otherwise manual (or AMDM via registryCode). */
+  source?: "manual" | "openfda";
+  /** The user already chose "Создать отдельную запись" (skip the duplicate check). */
+  allowDuplicate?: boolean;
 };
 
 /** Desktop: "Препарат" and "Упаковка" are two cards side by side. */
@@ -37,6 +44,8 @@ export function AddForm({
   initialCompartmentId,
   registryCode,
   initialValues = {},
+  source = "manual",
+  allowDuplicate = false,
 }: Props) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
   const errors = state.fieldErrors ?? {};
@@ -52,11 +61,44 @@ export function AddForm({
   return (
     <form action={formAction} className="flex flex-1 flex-col" noValidate>
       {registryCode ? <input type="hidden" name="registryCode" value={registryCode} /> : null}
+      {source === "openfda" ? <input type="hidden" name="source" value="openfda" /> : null}
+      {allowDuplicate ? <input type="hidden" name="allowDuplicate" value="1" /> : null}
       <main className="flex flex-1 flex-col gap-4 px-5 pb-4 lg:grid lg:flex-none lg:grid-cols-2 lg:items-start lg:gap-5 lg:p-0">
         {formMessage ? (
           <p role="alert" className={`${errorBoxClass} lg:col-span-2`}>
             {formMessage}
           </p>
+        ) : null}
+
+        {state.duplicate ? (
+          <section
+            role="alert"
+            aria-labelledby="duplicate-title"
+            className="flex flex-col gap-3 rounded-card border border-navy bg-surface p-4 lg:col-span-2 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div className="flex flex-col gap-1">
+              <h2 id="duplicate-title" className="text-[15px] font-semibold">
+                Уже есть дома: {state.duplicate.name}
+              </h2>
+              <p className="text-[13px] leading-normal text-muted">
+                {state.duplicate.reason === "registry"
+                  ? "Этот препарат из реестра уже записан."
+                  : "Препарат с этим штрихкодом уже записан."}{" "}
+                Лучше добавить к нему ещё одну упаковку.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 lg:flex-row">
+              <Link
+                href={`/medications/${state.duplicate.id}/pack/new${place.compartmentId ? `?cell=${place.compartmentId}` : ""}`}
+                className={`${primaryButtonClass} no-underline`}
+              >
+                Добавить упаковку к существующему
+              </Link>
+              <button type="submit" name="allowDuplicate" value="1" className={secondaryButtonClass}>
+                Создать отдельную запись
+              </button>
+            </div>
+          </section>
         ) : null}
 
         <section aria-labelledby="medication-title" className={`${columnClass} flex flex-col gap-2.5`}>
@@ -128,6 +170,24 @@ export function AddForm({
                 </option>
               ))}
             </select>
+          </FormField>
+          <FormField
+            label="Штрихкод"
+            htmlFor="barcode"
+            error={errors.barcode}
+            hint={errors.barcode ? undefined : "Цифры под полосками на упаковке, можно пусто"}
+          >
+            <input
+              {...fieldAria("barcode", errors.barcode, "hint")}
+              name="barcode"
+              type="text"
+              inputMode="numeric"
+              maxLength={20}
+              autoComplete="off"
+              placeholder="4820000000000"
+              defaultValue={v("barcode")}
+              className={inputClass}
+            />
           </FormField>
         </section>
 

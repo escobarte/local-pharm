@@ -1,5 +1,6 @@
 // Display and prefill helpers for registry rows. Pure.
 
+import { normalizeStoredBarcode } from "../barcode.ts";
 import { LIMITS } from "../storage/validation.ts";
 import type { RegistryItem } from "./types.ts";
 
@@ -28,6 +29,8 @@ export type RegistryPrefill = {
   activeIngredient: string;
   form: string;
   dosage: string;
+  /** Normalized barcode; empty when the registry has none or it fails the check digit. */
+  barcode: string;
 };
 
 /** Values for the "Препарат" fields; ® / ™ dropped, cut to the form's field limit. */
@@ -37,5 +40,6 @@ export function prefillFromRegistry(item: RegistryItem): RegistryPrefill {
     activeIngredient: clip(item.inn),
     form: clip(item.form),
     dosage: clip(item.dose || item.volume),
+    barcode: normalizeStoredBarcode(item.barcode) ?? "",
   };
 }

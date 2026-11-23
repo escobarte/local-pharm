@@ -11,6 +11,7 @@ import {
   searchHref,
   sourceLabel,
   sourceName,
+  searchHome,
   summarize,
   type SearchParams,
 } from "../lib/medications/search.ts";
@@ -46,6 +47,8 @@ const med = (over: Partial<CatalogMedication> = {}): CatalogMedication => ({
   dosage: "500 мг",
   indications: "Головная боль, жар",
   source: "manual",
+  barcode: null,
+  registryCode: null,
   categoryId: CAT_PAIN,
   categoryName: "Боль и температура",
   packs: [pack()],
@@ -246,4 +249,20 @@ test("sourceLabel / sourceName", () => {
   assert.equal(sourceName("amdm"), "Реестр AMDM");
   assert.equal(sourceName("manual"), "Вручную");
   assert.equal(sourceName(undefined), "Источник не указан");
+  assert.equal(sourceName("openfda"), "Международные базы (openFDA)");
+  assert.equal(sourceLabel("openfda"), "Источник: Международные базы (openFDA)");
+});
+
+test("searchHome: barcode query matches by barcode (any stored spelling), text query as usual", () => {
+  const meds = [
+    med({ id: "a", name: "Нурофен", activeIngredient: "ибупрофен", barcode: "317094291185" }),
+    med({ id: "b", name: "Парацетамол", barcode: "5995327132174" }),
+    med({ id: "c", name: "Нурофен форте", activeIngredient: "ибупрофен" }),
+  ];
+  assert.deepEqual(searchHome(meds, "0317094291185", TODAY).map((r) => r.med.id), ["a"]);
+  assert.deepEqual(searchHome(meds, "5995 3271 32174", TODAY).map((r) => r.med.id), ["b"]);
+  assert.deepEqual(searchHome(meds, "4750258202263", TODAY), []);
+  assert.deepEqual(searchHome(meds, "ибупрофен", TODAY).map((r) => r.med.id).sort(), ["a", "c"]);
+  assert.deepEqual(searchHome(meds, "   ", TODAY), []);
+  assert.equal(searchHome(meds, "о", TODAY, 1).length, 1);
 });

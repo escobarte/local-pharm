@@ -41,6 +41,7 @@ export function describeDbError(error: DbErrorLike, context: DbErrorContext = "s
     return "Препарат не найден в реестре AMDM. Найдите его в поиске ещё раз.";
   }
   if (code === "42501") return "Нет прав на это действие. Выйдите и войдите заново.";
+  if (code === "22023") return "Проверьте значения полей: одно из них не подходит.";
   if (code === "23514") return "Проверьте значения полей: одно из них не подходит.";
   if (code === "22P02") return "Некорректные данные. Обновите страницу и попробуйте снова.";
   return GENERIC;

@@ -4,7 +4,6 @@ import { categoryForAtc } from "../lib/amdm/atc-category.ts";
 import { manufacturerLabel, prefillFromRegistry, registrySubtitle } from "../lib/amdm/format.ts";
 import { buildSearchText, normalizeSearchText } from "../lib/amdm/normalize.ts";
 import {
-  addPageHref,
   isRegistryCode,
   parseBarcodeQuery,
   planRegistryQuery,
@@ -179,14 +178,4 @@ test("registry code: digits only, leading zeros kept", () => {
   assert.equal(isRegistryCode("0908900192"), true);
   assert.equal(isRegistryCode("7671799"), true);
   for (const bad of ["", "abc", "12 3", "1".repeat(17), null, 123]) assert.equal(isRegistryCode(bad), false);
-});
-
-test("addPageHref keeps box / compartment and the query", () => {
-  assert.equal(addPageHref({}), "/add");
-  assert.equal(addPageHref({ mode: "manual", q: "x", reg: "1", box: "b" }), "/add?box=b");
-  assert.equal(addPageHref({ mode: "search" }), "/add?mode=search");
-  assert.equal(
-    addPageHref({ mode: "search", q: "но-шпа", reg: "0908900192", cell: "c" }),
-    "/add?mode=search&q=%D0%BD%D0%BE-%D1%88%D0%BF%D0%B0&reg=0908900192&cell=c",
-  );
 });

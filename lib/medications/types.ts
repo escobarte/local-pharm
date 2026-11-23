@@ -28,6 +28,8 @@ export type CatalogMedication = {
   dosage: string | null;
   indications: string | null;
   source: string;
+  barcode: string | null;
+  registryCode: string | null;
   categoryId: string | null;
   categoryName: string | null;
   packs: CatalogPack[];

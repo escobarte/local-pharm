@@ -123,26 +123,3 @@ const CODE_RE = /^\d{1,16}$/;
 export function isRegistryCode(value: unknown): value is string {
   return typeof value === "string" && CODE_RE.test(value);
 }
-
-export type AddMode = "search" | "manual";
-
-/**
- * "/add?…" for the Add screen: mode (manual is the default and is omitted),
- * registry query and picked code, plus the preselected box / compartment.
- */
-export function addPageHref(params: {
-  mode?: AddMode;
-  q?: string;
-  reg?: string;
-  box?: string;
-  cell?: string;
-}): string {
-  const sp = new URLSearchParams();
-  if (params.mode === "search") sp.set("mode", "search");
-  if (params.mode === "search" && params.q) sp.set("q", params.q);
-  if (params.mode === "search" && params.reg) sp.set("reg", params.reg);
-  if (params.box) sp.set("box", params.box);
-  if (params.cell) sp.set("cell", params.cell);
-  const qs = sp.toString();
-  return qs ? `/add?${qs}` : "/add";
-}

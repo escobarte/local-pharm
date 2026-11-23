@@ -1,0 +1,158 @@
+{
+ "meta": {
+  "disclaimer": "trimmed fixture from api.fda.gov drug/label (fields used by lib/openfda only)",
+  "results": {
+   "skip": 0,
+   "limit": 5,
+   "total": 3519
+  }
+ },
+ "results": [
+  {
+   "id": "ee8e3aa2-8550-41c7-9911-0723b3fb2f87",
+   "set_id": "0005aafa-08f8-4990-a54d-cc097195708f",
+   "active_ingredient": [
+    "Active ingredient (in each gelcap) Acetaminophen 500 mg"
+   ],
+   "package_label_principal_display_panel": [
+    "Principal Display Panel Compare to the active ingredient in Extra Strength Tylenol ® Rapid Release Gels* Best Choice ® EXTRA STRENGTH Pain Reliever ACETAMINOPHEN 500 mg PAIN RELIEVER/FEVER REDUCER CONTAINS NO ASPIRIN Actual Size 100 GELCAPS TAMPER EVIDENT: DO NOT USE IF IMPRINTED SAFETY SEAL UNDER CAP IS BROKEN OR MISSING *This product is not manufactured or distributed by Johnson & Johnson Corpor"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Pain Reliever Extra Strength"
+    ],
+    "generic_name": [
+     "ACETAMINOPHEN"
+    ],
+    "manufacturer_name": [
+     "Valu Merchandisers Company"
+    ],
+    "substance_name": [
+     "ACETAMINOPHEN"
+    ],
+    "upc": [
+     "0070038610953"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "9bd24daa-3c59-4608-b967-d4fe2640358b",
+   "set_id": "00146b91-008d-4b16-95b0-6077f98821be",
+   "active_ingredient": [
+    "Active ingredient (in each caplet) Acetaminophen 500 mg"
+   ],
+   "package_label_principal_display_panel": [
+    "Package/Label Principal Display Panel Extra Strength Rapid Release Compare to Tylenol ® Extra Strength Rapid Release Gels active ingredient Acetaminophen Pain Reliever/Fever Reducer actual size Fast Relief For Adults 100 CAPLETS-500 mg Each acetaminophen image"
+   ],
+   "openfda": {
+    "brand_name": [
+     "basic care acetaminophen"
+    ],
+    "generic_name": [
+     "ACETAMINOPHEN"
+    ],
+    "manufacturer_name": [
+     "Amazon.com Services LLC"
+    ],
+    "substance_name": [
+     "ACETAMINOPHEN"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "a3731272-35ef-4fb8-aeb2-3421f68f715a",
+   "set_id": "0035a4fd-8dd5-4534-a1b5-f510d637f721",
+   "active_ingredient": [
+    "Drug Facts Active ingredient (in each extended-release tablet) Acetaminophen USP 650 mg"
+   ],
+   "package_label_principal_display_panel": [
+    "PACKAGE LABEL-PRINCIPAL DISPLAY PANEL - 650 mg (325 Tablet Bottle) TO OPEN: 1. PUSH DOWN NDC 79903-132-25 2. TURN CAP equate TM Compare to Tylenol ® 8 HR Arthritis Pain active ingredient** 8 HOUR Arthritis Pain Relief Acetaminophen Extended-Release Tablets USP, 650 mg Pain Reliever/Fever Reducer For the Temporary Relief of Minor Arthritis Pain DO NOT USE WITH OTHER MEDICINES CONTAINING ACETAMINOPH"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Acetaminophen"
+    ],
+    "generic_name": [
+     "ACETAMINOPHEN"
+    ],
+    "manufacturer_name": [
+     "WALMART INC."
+    ],
+    "substance_name": [
+     "ACETAMINOPHEN"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "3aa48604-afd3-49a2-b0a8-ab15171c7913",
+   "set_id": "0044c53c-11dd-41a9-a5d9-622dd8b1c144",
+   "active_ingredient": [
+    "Active ingredients (in each 30 mL) Acetaminophen 650 mg Dextromethorphan HBr 20 mg Phenylephrine HCl 10 mg"
+   ],
+   "package_label_principal_display_panel": [
+    "Principal Display Panel COMPARE TO THE ACTIVE INGREDIENTS IN THERAFLU® EXPRESSMAX® DAYTIME SEVERE COLD & COUGH* ADULT DAYTIME SEVERE COLD & COUGH RELIEF Acetaminophen 650 mg Pain reliever; Fever reducer Dextromethorphan HBr 20 mg Cough suppressant Phenylephrine HCI 10 mg Nasal decongestion RELIEVES Cough Nasal congestion Sore throat Fever Body ache Headache Alcohol 10% For Ages 12 Years & Older BE"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Daytime Cold and Flu"
+    ],
+    "generic_name": [
+     "ACETAMINOPHEN, DEXTROMETHORPHAN HBR, PHENYLEPHRINE HCL"
+    ],
+    "manufacturer_name": [
+     "Family Dollar (FAMILY WELLNESS)"
+    ],
+    "substance_name": [
+     "ACETAMINOPHEN",
+     "DEXTROMETHORPHAN HYDROBROMIDE",
+     "PHENYLEPHRINE HYDROCHLORIDE"
+    ],
+    "upc": [
+     "0032251921049"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "404529fa-4eba-d862-e063-6394a90a08b9",
+   "set_id": "004c39cd-b4f4-1cae-e063-6394a90a0697",
+   "active_ingredient": [
+    "Active ingredient (in each tablet) Acetaminophen 325mg"
+   ],
+   "package_label_principal_display_panel": [
+    "pdp"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Acetaminophen"
+    ],
+    "generic_name": [
+     "ACETAMINOPHEN"
+    ],
+    "manufacturer_name": [
+     "NuCare Pharmaceuticals,Inc."
+    ],
+    "substance_name": [
+     "ACETAMINOPHEN"
+    ],
+    "upc": [
+     "0368071345438"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  }
+ ]
+}

@@ -95,6 +95,9 @@ test("medication: valid full input", () => {
       expiryDate: "2026-12-31",
       compartmentId: U1,
       registryCode: null,
+      barcode: null,
+      source: "manual",
+      allowDuplicate: false,
     },
   });
 });
@@ -113,6 +116,9 @@ test("medication: only required fields; optional ones become null", () => {
       expiryDate: null,
       compartmentId: U1,
       registryCode: null,
+      barcode: null,
+      source: "manual",
+      allowDuplicate: false,
     },
   });
 });
@@ -158,6 +164,36 @@ test("medication: registry code is optional, digits only, leading zeros kept", (
     assert.equal(r.ok, false, bad);
     if (!r.ok) assert.match(r.errors.registryCode, /реестр/, bad);
   }
+});
+
+test("medication: barcode is optional, normalized, checked", () => {
+  const ok = parseMedicationPackInput({ ...validMed, barcode: " 317094291185 " });
+  assert.ok(ok.ok && ok.value.barcode === "0317094291185");
+  const bad = parseMedicationPackInput({ ...validMed, barcode: "5995327132175" });
+  assert.ok(!bad.ok && /последняя цифра/.test(bad.errors.barcode));
+  assert.ok(!parseMedicationPackInput({ ...validMed, barcode: "12ab" }).ok);
+});
+
+test("medication: source — amdm only with a registry code, openfda by flag, anything else manual", () => {
+  const src = (extra: Record<string, string>) => {
+    const r = parseMedicationPackInput({ ...validMed, ...extra });
+    return r.ok ? r.value.source : "invalid";
+  };
+  assert.equal(src({}), "manual");
+  assert.equal(src({ source: "openfda" }), "openfda");
+  assert.equal(src({ source: "amdm" }), "manual"); // no registry code → not amdm
+  assert.equal(src({ source: "local" }), "manual");
+  assert.equal(src({ source: "openfda", registryCode: "0908900192" }), "amdm");
+});
+
+test("medication: allowDuplicate only for exactly '1'", () => {
+  const flag = (v: string) => {
+    const r = parseMedicationPackInput({ ...validMed, allowDuplicate: v });
+    return r.ok && r.value.allowDuplicate;
+  };
+  assert.equal(flag("1"), true);
+  assert.equal(flag("true"), false);
+  assert.equal(flag(""), false);
 });
 
 test("formDataToRaw keeps string fields only", () => {

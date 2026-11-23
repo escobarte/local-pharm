@@ -1,0 +1,99 @@
+{
+ "meta": {
+  "disclaimer": "trimmed fixture from api.fda.gov drug/label (fields used by lib/openfda only)",
+  "results": {
+   "skip": 0,
+   "limit": 3,
+   "total": 20
+  }
+ },
+ "results": [
+  {
+   "id": "97d403fb-8a67-483d-8f9c-45dd16a31689",
+   "set_id": "03733e49-7db4-4d98-b363-d0d23686ec72",
+   "dosage_forms_and_strengths": [
+    "3 DOSAGE FORMS AND STRENGTHS Ibuprofen and famotidine tablets: 800 mg/26.6 mg, are Blue/Light blue coated modified oval shaped tablets debossed with “T396” on one side and plain on the other side. Ibuprofen and Famotidine Tablets: 800 mg ibuprofen and 26.6 mg famotidine. (3)"
+   ],
+   "package_label_principal_display_panel": [
+    "CL-30s count.jpg"
+   ],
+   "openfda": {
+    "brand_name": [
+     "IBUPROFEN AND FAMOTIDINE"
+    ],
+    "generic_name": [
+     "IBUPROFEN AND FAMOTIDINE"
+    ],
+    "manufacturer_name": [
+     "Ascent Pharmaceuticals, Inc."
+    ],
+    "substance_name": [
+     "IBUPROFEN",
+     "FAMOTIDINE"
+    ],
+    "upc": [
+     "0343602544306"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ]
+   }
+  },
+  {
+   "id": "16c8a378-4a4c-885f-e063-6394a90acd4b",
+   "set_id": "16c8b0db-37d0-99d9-e063-6394a90ac31b",
+   "dosage_forms_and_strengths": [
+    "3 DOSAGE FORMS AND STRENGTHS Ibuprofen and famotidine tablets: 800 mg/26.6 mg, are Blue/Light blue coated Modified Oval shaped tablets debossed with T396 on one side and an engraved circle on the other side. Ibuprofen and Famotidine Tablets: 800 mg ibuprofen and 26.6 mg famotidine. (3)"
+   ],
+   "package_label_principal_display_panel": [
+    "label 1 label2 label 3"
+   ],
+   "openfda": {
+    "brand_name": [
+     "IBUPROFEN AND FAMOTIDINE"
+    ],
+    "generic_name": [
+     "IBUPROFEN AND FAMOTIDINE"
+    ],
+    "manufacturer_name": [
+     "Advanced Rx Pharmacy of Tennessee, LLC"
+    ],
+    "substance_name": [
+     "IBUPROFEN",
+     "FAMOTIDINE"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ]
+   }
+  },
+  {
+   "id": "1d625438-34dd-fbba-e063-6294a90afd2f",
+   "set_id": "1d625438-34dc-fbba-e063-6294a90afd2f",
+   "dosage_forms_and_strengths": [
+    "3 DOSAGE FORMS AND STRENGTHS Ibuprofen and famotidine tablets 800 mg/26.6 mg, are light blue to blue oval shaped, film coated tablets imprinted with \"IF826\" in black on one side and plain on other side. Ibuprofen and Famotidine Tablets: 800 mg ibuprofen and 26.6 mg famotidine. ( 3 )"
+   ],
+   "package_label_principal_display_panel": [
+    "PACKAGE LABEL.PRINCIPAL DISPLAY PANEL Ibuprofen/Famotidine 800mg-26.6mg #30 Ibuprofen/Famotidine 800mg-26.6mg #60 Ibuprofen/Famotidine 800mg-26.6mg #90"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Ibuprofen and famotidine"
+    ],
+    "generic_name": [
+     "IBUPROFEN AND FAMOTIDINE"
+    ],
+    "manufacturer_name": [
+     "Advanced Rx of Tennessee, LLC"
+    ],
+    "substance_name": [
+     "IBUPROFEN",
+     "FAMOTIDINE"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ]
+   }
+  }
+ ]
+}

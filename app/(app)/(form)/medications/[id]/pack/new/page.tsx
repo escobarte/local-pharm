@@ -9,19 +9,30 @@ import { createPack } from "@/lib/medications/actions";
 import { getMedication } from "@/lib/medications/queries";
 import { sortPacks } from "@/lib/medications/search";
 import { getBoxOptions } from "@/lib/storage/queries";
+import { isUuid } from "@/lib/storage/validation";
 
 export const metadata: Metadata = { title: "Добавить упаковку — Local Pharm" };
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  /** ?cell=<compartment id>: place chosen on the Add screen ("Добавить упаковку к существующему"). */
+  searchParams: Promise<{ cell?: string | string[] }>;
+};
 
-export default async function NewPackPage({ params }: Props) {
+export default async function NewPackPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { cell } = await searchParams;
+  const cellId = typeof cell === "string" && isUuid(cell) ? cell : "";
   const med = await getMedication(id);
   if (!med) notFound();
   const boxes = await getBoxOptions();
 
-  // Suggest the place of the most urgent existing pack.
+  // A place passed from the Add screen wins; otherwise suggest the place of the
+  // most urgent existing pack.
+  const boxOfCell = boxes.find((b) => b.compartments.some((c) => c.id === cellId));
   const lastPlace = sortPacks(med.packs).find((p) => p.place)?.place;
+  const initialBoxId = boxOfCell?.id ?? lastPlace?.boxId ?? boxes[0]?.id ?? "";
+  const initialCompartmentId = boxOfCell ? cellId : (lastPlace?.compartmentId ?? "");
 
   return (
     <Page>
@@ -50,8 +61,8 @@ export default async function NewPackPage({ params }: Props) {
           mode="create"
           boxes={boxes}
           fields={{ medicationId: med.id }}
-          initialBoxId={lastPlace?.boxId ?? boxes[0].id}
-          initialCompartmentId={lastPlace?.compartmentId ?? ""}
+          initialBoxId={initialBoxId}
+          initialCompartmentId={initialCompartmentId}
           submitLabel="Сохранить"
         />
       )}

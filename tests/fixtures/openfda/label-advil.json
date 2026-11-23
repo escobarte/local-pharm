@@ -1,0 +1,156 @@
+{
+ "meta": {
+  "disclaimer": "trimmed fixture from api.fda.gov drug/label (fields used by lib/openfda only)",
+  "results": {
+   "skip": 0,
+   "limit": 5,
+   "total": 39
+  }
+ },
+ "results": [
+  {
+   "id": "44e71018-211d-caf8-e063-6394a90a06c9",
+   "set_id": "030d9bca-a934-6ef9-e063-6394a90a8277",
+   "active_ingredient": [
+    "Active ingredients ​Active ingredients Acetaminophen 250 mg Ibuprofen 125 mg (NSAID*) *nonsteroidal anti-inflammatory drug"
+   ],
+   "package_label_principal_display_panel": [
+    "Advil Dual Action with Acetaminophen, Lil' Drug Store Advil Dual Action with Acetaminophen [caplet image] Acetaminophen 250 mg and Ibuprofen (NSAID) 125 mg Tablets Pain Reliever 6 Caplets* *Capsule-Shaped Tablets [Lil' Drug Store logo] PDP/Package"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Advil Dual Action with Acetaminophen, Travel BASIX",
+     "Advil Dual Action with Acetaminophen"
+    ],
+    "generic_name": [
+     "IBUPROFEN, ACETAMINOPHEN TABLET, FILM COATED"
+    ],
+    "manufacturer_name": [
+     "Lil' Drug Store Products, Inc."
+    ],
+    "substance_name": [
+     "IBUPROFEN",
+     "ACETAMINOPHEN"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "60e9724f-3733-45d1-989d-8ee434e91dc0",
+   "set_id": "07d4c400-b182-92f7-7574-9e0e94c39cce",
+   "active_ingredient": [
+    "ACTIVE INGREDIENT (IN EACH TABLET) Ibuprofen 100 mg (NSAID)* *nonsteroidal anti-inflammatory drug"
+   ],
+   "package_label_principal_display_panel": [
+    "PRINCIPAL DISPLAY PANEL Junior Strength Advil ® Chewables Ibuprofen Tablets, 100 mg Pain Reliever/Fever Reducer (NSAID) FEVER Aches & Pains NEW! Now for Ages 2-11 LASTS UP TO 8 HOURS Grape 24 Chewable Tablets Principal Display Panel - 100 mg Tablet Bottle Carton"
+   ],
+   "openfda": {
+    "brand_name": [
+     "JUNIOR STRENGTH ADVIL"
+    ],
+    "generic_name": [
+     "IBUPROFEN"
+    ],
+    "manufacturer_name": [
+     "Haleon US Holdings LLC"
+    ],
+    "substance_name": [
+     "IBUPROFEN"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "57c53749-0be1-d204-e063-6394a90a2704",
+   "set_id": "0da9ed22-bfb4-d61b-110b-0c7760332a98",
+   "active_ingredient": [
+    "Active ingredients (in each liquid-filled capsule) Solubilized ibuprofen equal to 200 mg ibuprofen (NSAID)* (present as the free acid and potassium salt) Pseudoephedrine HCl 30 mg *nonsteroidal anti-inflammatory drug"
+   ],
+   "package_label_principal_display_panel": [
+    "PRINCIPAL DISPLAY PANEL Advil COLD & SINUS Non-Drowsy Ibuprofen 200 mg ‣ Pain Reliever/Fever Reducer (NSAID) Pseudoephedrine HCl 30 mg ‣ Nasal Decongestant Relieves Sinus Pressure, Nasal Congestion and Fever LIQUI-GELS ® Advil C & S 32 LIQUID-FILLED CAPSULES Advil Cold & Sinus Liqui-Gels 200mg 30mg Blister Pack Carton"
+   ],
+   "openfda": {
+    "brand_name": [
+     "ADVIL COLD AND SINUS"
+    ],
+    "generic_name": [
+     "IBUPROFEN, PSEUDOEPHEDRINE HYDROCHLORIDE"
+    ],
+    "manufacturer_name": [
+     "Haleon US Holdings LLC"
+    ],
+    "substance_name": [
+     "IBUPROFEN",
+     "PSEUDOEPHEDRINE HYDROCHLORIDE"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "10e39c07-0913-c1b0-e063-6394a90aff82",
+   "set_id": "16e6be21-7b43-443a-89ec-3bdf0ec0dfc1",
+   "active_ingredient": [
+    "Active ingredients Camphor 3.1% Capsaicin 0.025% Menthol 10% Methyl salicylate 15%"
+   ],
+   "package_label_principal_display_panel": [
+    "PRINCIPAL DISPLAY PANEL NEW HALEON DOES NOT CONTAIN THE SAME ACTIVE INGREDIENT AS ADVIL Advil TARGETED RELIEF PAIN RELIEVING CREAM 4 POWERFUL PAIN FIGHTING INGREDIENTS Arthritis & Joint Pain Sprains & Strains Back & Body aches Sore Muscles FOR EXTERNAL USE ONLY NET WT. 65 g (2.3 oz) 206239 Front 206239 Advil Targeted Relief 65 g (2.3 oz)"
+   ],
+   "openfda": {
+    "brand_name": [
+     "Advil Targeted Relief"
+    ],
+    "generic_name": [
+     "CAMPHOR, CAPSAICIN, MENTHOL, METHYL SALICYLATE"
+    ],
+    "manufacturer_name": [
+     "Haleon US Holdings LLC"
+    ],
+    "substance_name": [
+     "CAMPHOR (NATURAL)",
+     "CAPSAICIN",
+     "MENTHOL, UNSPECIFIED FORM",
+     "METHYL SALICYLATE"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  },
+  {
+   "id": "5f675a2c-cd5d-ac5f-e063-6294a90abdc7",
+   "set_id": "1a665e64-9f30-be37-4a83-38789f1f1e89",
+   "active_ingredient": [
+    "Active Ingredient Advil Tablets (in each tablet) Ibuprofen 200 mg (NSAID)* *nonsteroidal anti-inflammatory drug Advil Caplets (in each caplet) Ibuprofen 200 mg (NSAID)* *nonsteroidal anti-inflammatory drug Advil Gel Caplets (in each gel caplet) Ibuprofen 200 mg (NSAID)* *nonsteroidal anti-inflammatory drug"
+   ],
+   "package_label_principal_display_panel": [
+    "PRINCIPAL DISPLAY PANEL – 100 Gel Caplet Bottle Carton NDC 0573-0165-40 Advil Ibuprofen Tablets, 200 mg Pain Reliever / Fever Reducer (NSAID) 100 Coated Gel Caplets* *Capsule-Shaped Gelatin-Coated Tablets Gel Caplets 000067202 Front Carton Advil Gel Caps 100ct"
+   ],
+   "openfda": {
+    "brand_name": [
+     "ADVIL"
+    ],
+    "generic_name": [
+     "IBUPROFEN"
+    ],
+    "manufacturer_name": [
+     "Haleon US Holdings LLC"
+    ],
+    "substance_name": [
+     "IBUPROFEN"
+    ],
+    "upc": [
+     "0305730150200"
+    ],
+    "product_type": [
+     "HUMAN OTC DRUG"
+    ]
+   }
+  }
+ ]
+}
