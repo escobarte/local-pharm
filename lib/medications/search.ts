@@ -197,13 +197,20 @@ export function attentionCounts(packs: readonly AttentionPack[], today: IsoDate)
 
 // ---------- Labels ----------
 
-const SOURCE_LABELS: Record<string, string> = {
-  manual: "вручную",
-  local: "своя база",
-  amdm: "AMDM",
+const SOURCE_NAMES: Record<string, string> = {
+  manual: "Вручную",
+  local: "Своя база",
+  amdm: "Реестр AMDM",
   openfda: "openFDA",
 };
 
+/** Short source tag for result cards: "Вручную", "Реестр AMDM". */
+export function sourceName(source: string | null | undefined): string {
+  return SOURCE_NAMES[source ?? ""] ?? "Источник не указан";
+}
+
+/** Source tag on the medication card: "Источник: Реестр AMDM". */
 export function sourceLabel(source: string | null | undefined): string {
-  return `Источник: ${SOURCE_LABELS[source ?? ""] ?? "не указан"}`;
+  const name = SOURCE_NAMES[source ?? ""];
+  return name ? `Источник: ${name}` : "Источник: не указан";
 }

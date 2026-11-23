@@ -20,15 +20,28 @@ type Props = {
   boxes: PlaceBox[];
   initialBoxId: string;
   initialCompartmentId: string;
+  /** AMDM registry code when the medication was picked in the registry search. */
+  registryCode?: string;
+  /** Prefilled values (from the registry): name, activeIngredient, form, dosage, categoryId. */
+  initialValues?: Record<string, string>;
 };
 
 /** Desktop: "Препарат" and "Упаковка" are two cards side by side. */
 const columnClass = "lg:gap-4 lg:rounded-card lg:border lg:border-border lg:bg-surface lg:p-6";
 
-export function AddForm({ action, categories, boxes, initialBoxId, initialCompartmentId }: Props) {
+export function AddForm({
+  action,
+  categories,
+  boxes,
+  initialBoxId,
+  initialCompartmentId,
+  registryCode,
+  initialValues = {},
+}: Props) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
   const errors = state.fieldErrors ?? {};
-  const v = (key: string, fallback = "") => state.values?.[key] ?? fallback;
+  const v = (key: string, fallback = "") => state.values?.[key] ?? initialValues[key] ?? fallback;
+  const formMessage = state.message ?? errors.registryCode;
 
   const place = usePlaceSelection(
     boxes,
@@ -38,10 +51,11 @@ export function AddForm({ action, categories, boxes, initialBoxId, initialCompar
 
   return (
     <form action={formAction} className="flex flex-1 flex-col" noValidate>
+      {registryCode ? <input type="hidden" name="registryCode" value={registryCode} /> : null}
       <main className="flex flex-1 flex-col gap-4 px-5 pb-4 lg:grid lg:flex-none lg:grid-cols-2 lg:items-start lg:gap-5 lg:p-0">
-        {state.message ? (
+        {formMessage ? (
           <p role="alert" className={`${errorBoxClass} lg:col-span-2`}>
-            {state.message}
+            {formMessage}
           </p>
         ) : null}
 

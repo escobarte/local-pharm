@@ -10,6 +10,7 @@ import {
   runSearch,
   searchHref,
   sourceLabel,
+  sourceName,
   summarize,
   type SearchParams,
 } from "../lib/medications/search.ts";
@@ -237,9 +238,12 @@ test("attentionCounts: soon / expired / running low are counted per pack", () =>
   assert.deepEqual(attentionCounts([], TODAY), { expiring: 0, expired: 0, lowStock: 0 });
 });
 
-test("sourceLabel", () => {
-  assert.equal(sourceLabel("amdm"), "Источник: AMDM");
-  assert.equal(sourceLabel("manual"), "Источник: вручную");
+test("sourceLabel / sourceName", () => {
+  assert.equal(sourceLabel("amdm"), "Источник: Реестр AMDM");
+  assert.equal(sourceLabel("manual"), "Источник: Вручную");
   assert.equal(sourceLabel("weird"), "Источник: не указан");
   assert.equal(sourceLabel(null), "Источник: не указан");
+  assert.equal(sourceName("amdm"), "Реестр AMDM");
+  assert.equal(sourceName("manual"), "Вручную");
+  assert.equal(sourceName(undefined), "Источник не указан");
 });

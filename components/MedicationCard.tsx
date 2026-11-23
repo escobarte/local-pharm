@@ -1,9 +1,10 @@
 import { formatExpiry } from "@/lib/dates";
 import { morePlacesLabel, packsShort, pcsLabel } from "@/lib/format";
-import { placeLabel, type SearchResult } from "@/lib/medications/search";
+import { placeLabel, sourceName, type SearchResult } from "@/lib/medications/search";
 import { ExpiryBadge, LowStockBadge } from "./Badge";
 import { DesktopSelectLink } from "./DesktopSelectLink";
 import { IconPill, IconStorage } from "./icons";
+import { sourceTagClass } from "./ui";
 
 type Props = SearchResult & {
   /** Desktop: the card selects the medication in the side panel of the results. */
@@ -63,7 +64,10 @@ export function MedicationCard({ med, summary, selectHref, selected }: Props) {
             <span className="text-muted">Нет упаковок</span>
           )}
         </span>
-        {meta ? <span className="text-[13px] text-muted">{meta}</span> : null}
+        <span className="flex items-center justify-between gap-2">
+          <span className="text-[13px] text-muted">{meta}</span>
+          <span className={sourceTagClass}>{sourceName(med.source)}</span>
+        </span>
       </DesktopSelectLink>
     </li>
   );

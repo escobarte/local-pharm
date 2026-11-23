@@ -148,19 +148,26 @@ export async function createMedicationWithPack(
     return { fieldErrors: { compartmentId: "Отсек не найден. Выберите другой." }, values };
   }
 
-  // One transactional RPC (migration 0002): no orphan medication if the pack fails.
+  // One transactional RPC: no orphan medication if the pack fails.
+  // Manual mode → add_medication_with_pack (0002). Picked in the AMDM registry →
+  // add_registry_medication_with_pack (0004): source 'amdm', registry_code and
+  // barcode are read from the registry row in SQL, not taken from the form.
+  const fields = {
+    p_name: input.name,
+    p_active_ingredient: input.activeIngredient,
+    p_form: input.form,
+    p_dosage: input.dosage,
+    p_category_id: input.categoryId,
+    p_compartment_id: input.compartmentId,
+    p_quantity: input.quantity,
+    p_expiry_date: input.expiryDate,
+  };
+  const registryCode = input.registryCode;
   const saved = await run(
     () =>
-      supabase.rpc("add_medication_with_pack", {
-        p_name: input.name,
-        p_active_ingredient: input.activeIngredient,
-        p_form: input.form,
-        p_dosage: input.dosage,
-        p_category_id: input.categoryId,
-        p_compartment_id: input.compartmentId,
-        p_quantity: input.quantity,
-        p_expiry_date: input.expiryDate,
-      }),
+      registryCode
+        ? supabase.rpc("add_registry_medication_with_pack", { p_registry_code: registryCode, ...fields })
+        : supabase.rpc("add_medication_with_pack", fields),
     "save-pack",
   );
   if (!saved.ok) return { message: saved.message, values };

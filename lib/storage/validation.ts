@@ -112,6 +112,8 @@ export type MedicationPackInput = {
   quantity: number;
   expiryDate: string | null;
   compartmentId: string;
+  /** AMDM registry code when the medication was picked in the registry search; null in manual mode. */
+  registryCode: string | null;
 };
 
 export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationPackInput> {
@@ -148,6 +150,11 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
   const compartmentId = text(raw, "compartmentId");
   if (!isUuid(compartmentId)) errors.compartmentId = "Выберите коробку и отсек.";
 
+  const registryRaw = text(raw, "registryCode");
+  if (registryRaw !== "" && !/^\d{1,16}$/.test(registryRaw)) {
+    errors.registryCode = "Препарат из реестра выбран неверно. Найдите его в поиске ещё раз.";
+  }
+
   return finish(errors, {
     name,
     activeIngredient,
@@ -157,6 +164,7 @@ export function parseMedicationPackInput(raw: RawInput): ParseResult<MedicationP
     quantity,
     expiryDate: expiry.ok ? expiry.value : null,
     compartmentId,
+    registryCode: registryRaw === "" ? null : registryRaw,
   });
 }
 

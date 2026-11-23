@@ -31,6 +31,10 @@ export const sectionTitleClass =
 export const iconButtonClass =
   `flex size-11 items-center justify-center rounded-field text-navy hover:bg-tint ${focusRing}`;
 
+/** Small source tag ("Реестр AMDM", "Вручную"): tint background, muted text (≥ 4.5:1). */
+export const sourceTagClass =
+  "flex-none rounded-tag bg-tint px-2 py-1 text-[11px] leading-none font-semibold text-muted";
+
 export const errorBoxClass =
   "rounded-field bg-danger-bg px-4 py-3 text-[13px] leading-normal text-danger-fg";
 

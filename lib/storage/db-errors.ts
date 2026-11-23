@@ -36,6 +36,10 @@ export function describeDbError(error: DbErrorLike, context: DbErrorContext = "s
   if (["PGRST202", "PGRST204", "42703", "42883"].includes(code)) {
     return "База данных ещё не обновлена. Владельцу нужно выполнить последнюю миграцию (docs/SETUP-SUPABASE.md).";
   }
+  // add_registry_medication_with_pack (0004): the registry row is gone or not visible.
+  if (code === "P0002") {
+    return "Препарат не найден в реестре AMDM. Найдите его в поиске ещё раз.";
+  }
   if (code === "42501") return "Нет прав на это действие. Выйдите и войдите заново.";
   if (code === "23514") return "Проверьте значения полей: одно из них не подходит.";
   if (code === "22P02") return "Некорректные данные. Обновите страницу и попробуйте снова.";

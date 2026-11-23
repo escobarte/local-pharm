@@ -94,6 +94,7 @@ test("medication: valid full input", () => {
       quantity: 12,
       expiryDate: "2026-12-31",
       compartmentId: U1,
+      registryCode: null,
     },
   });
 });
@@ -111,6 +112,7 @@ test("medication: only required fields; optional ones become null", () => {
       quantity: 1,
       expiryDate: null,
       compartmentId: U1,
+      registryCode: null,
     },
   });
 });
@@ -144,6 +146,18 @@ test("medication: name required and length-limited", () => {
   assert.equal(parseMedicationPackInput({ ...validMed, name: "  " }).ok, false);
   assert.equal(parseMedicationPackInput({ ...validMed, name: "x".repeat(121) }).ok, false);
   assert.equal(parseMedicationPackInput({ ...validMed, dosage: "x".repeat(121) }).ok, false);
+});
+
+test("medication: registry code is optional, digits only, leading zeros kept", () => {
+  const ok = parseMedicationPackInput({ ...validMed, registryCode: " 0908900192 " });
+  assert.ok(ok.ok && ok.value.registryCode === "0908900192");
+  const manual = parseMedicationPackInput({ ...validMed, registryCode: "" });
+  assert.ok(manual.ok && manual.value.registryCode === null);
+  for (const bad of ["abc", "12a", "1".repeat(17), "1 2", "' or 1=1"]) {
+    const r = parseMedicationPackInput({ ...validMed, registryCode: bad });
+    assert.equal(r.ok, false, bad);
+    if (!r.ok) assert.match(r.errors.registryCode, /реестр/, bad);
+  }
 });
 
 test("formDataToRaw keeps string fields only", () => {
