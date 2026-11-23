@@ -25,7 +25,7 @@ export function SideNav({ email, signOutAction }: Props) {
   const initial = email.trim().charAt(0).toUpperCase() || "•";
 
   return (
-    <aside className="hidden w-62 flex-none flex-col gap-6 bg-navy px-4 py-6 text-white lg:sticky lg:top-0 lg:flex lg:h-dvh">
+    <aside className="hidden w-62 flex-none flex-col gap-6 bg-navy px-4 py-6 text-white lg:sticky lg:top-0 lg:flex lg:h-dvh print:hidden">
       <Link
         href="/"
         className={`flex items-center gap-3 rounded-field px-1.5 py-1 text-[17px] font-bold text-white no-underline ${focus}`}

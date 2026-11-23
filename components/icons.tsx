@@ -90,3 +90,20 @@ export const IconSearch = (p: IconProps) => (
     <path d="m20 20-3.5-3.5" />
   </Svg>
 );
+
+export const IconQr = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4" y="4" width="6" height="6" />
+    <rect x="14" y="4" width="6" height="6" />
+    <rect x="4" y="14" width="6" height="6" />
+    <path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" />
+  </Svg>
+);
+
+export const IconPrint = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M7 9V4h10v5" />
+    <rect x="3" y="9" width="18" height="8" rx="2" />
+    <path d="M7 14h10v6H7z" />
+  </Svg>
+);

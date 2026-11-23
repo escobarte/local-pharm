@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/env";
-import { LOGIN_PATH, NOT_CONFIGURED_PATH, isPublicPath } from "@/lib/routes";
+import { LOGIN_PATH, NOT_CONFIGURED_PATH, isPublicPath, safeNextPath } from "@/lib/routes";
 
 /**
  * Optimistic auth check (Next.js 16 Proxy, formerly Middleware):
@@ -56,7 +56,8 @@ export async function proxy(request: NextRequest) {
   }
 
   if (hasSession && pathname === LOGIN_PATH) {
-    return redirectTo(new URL("/", request.url));
+    // Already signed in (e.g. in another tab): go where the login was for.
+    return redirectTo(new URL(safeNextPath(request.nextUrl.searchParams.get("next")), request.url));
   }
 
   return response;

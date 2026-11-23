@@ -50,3 +50,12 @@ export function readOpenFdaUrl(raw: string | undefined, fallback: string): strin
     return fallback;
   }
 }
+
+/**
+ * NEXT_PUBLIC_SITE_URL (optional): the address printed into box QR stickers.
+ * Not set → stickers use the address the page is opened at. Read literally so
+ * Next.js inlines it into the browser bundle (changing it needs a Redeploy).
+ */
+export function getSiteUrlOverride(): string | undefined {
+  return process.env.NEXT_PUBLIC_SITE_URL;
+}

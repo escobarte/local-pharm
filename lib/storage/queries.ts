@@ -95,21 +95,76 @@ export async function getStorageOverview() {
 }
 
 export const getBox = cache(
-  async (boxId: string): Promise<(BoxRow & { locationName: string }) | null> => {
+  async (boxId: string): Promise<(BoxRow & { locationName: string; qrToken: string }) | null> => {
     if (!isUuid(boxId)) return null;
     const supabase = await client();
     const { data, error } = await supabase
       .from("boxes")
-      .select("id, name, number, color, location_id, locations(name)")
+      .select("id, name, number, color, location_id, qr_token, locations(name)")
       .eq("id", boxId)
       .maybeSingle();
     if (error) throw new Error(`box: ${error.message}`);
     if (!data) return null;
-    const row = data as unknown as BoxRow & { locations: { name: string } | null };
-    const { locations, ...box } = row;
-    return { ...box, locationName: locations?.name ?? "" };
+    const row = data as unknown as BoxRow & { qr_token: string; locations: { name: string } | null };
+    const { locations, qr_token, ...box } = row;
+    return { ...box, qrToken: qr_token, locationName: locations?.name ?? "" };
   },
 );
+
+/**
+ * Box id of a QR sticker token, or null when the token is malformed, unknown
+ * or not visible to this user (RLS). The three cases are not told apart.
+ */
+export async function findBoxIdByQrToken(token: string): Promise<string | null> {
+  if (!isUuid(token)) return null;
+  const supabase = await client();
+  const { data, error } = await supabase
+    .from("boxes")
+    .select("id")
+    .eq("qr_token", token.toLowerCase())
+    .maybeSingle();
+  if (error) throw new Error(`box by qr: ${error.message}`);
+  return (data as { id: string } | null)?.id ?? null;
+}
+
+export type LabelBoxRow = {
+  id: string;
+  name: string;
+  number: string | null;
+  qrToken: string;
+  locationName: string;
+};
+
+/** All boxes for the sticker sheet, in the order of "Хранение" (zone, then number, then name). */
+export async function getLabelBoxes(): Promise<LabelBoxRow[]> {
+  const supabase = await client();
+  const [locations, boxes] = await Promise.all([
+    getLocations(),
+    supabase.from("boxes").select("id, name, number, qr_token, location_id").order("created_at"),
+  ]);
+  if (boxes.error) throw new Error(`boxes: ${boxes.error.message}`);
+  const zoneOrder = new Map(
+    [...locations]
+      .sort((a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name, "ru"))
+      .map((l, i) => [l.id, { i, name: l.name }]),
+  );
+  type Raw = { id: string; name: string; number: string | null; qr_token: string; location_id: string };
+  return ((boxes.data ?? []) as Raw[])
+    .map((b) => ({ b, zone: zoneOrder.get(b.location_id) }))
+    .sort(
+      (x, y) =>
+        (x.zone?.i ?? 1e9) - (y.zone?.i ?? 1e9) ||
+        (x.b.number ?? "").localeCompare(y.b.number ?? "", "ru", { numeric: true }) ||
+        x.b.name.localeCompare(y.b.name, "ru", { numeric: true }),
+    )
+    .map(({ b, zone }) => ({
+      id: b.id,
+      name: b.name,
+      number: b.number,
+      qrToken: b.qr_token,
+      locationName: zone?.name ?? "",
+    }));
+}
 
 export async function getBoxDetail(boxId: string, requestedCompartmentId?: string | null) {
   const supabase = await client();

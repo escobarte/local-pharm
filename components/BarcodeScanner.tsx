@@ -4,14 +4,21 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { addPageHref } from "@/lib/add-href";
 import { parseBarcode } from "@/lib/barcode";
+import { getSiteUrlOverride } from "@/lib/env";
+import { QR_ERRORS, allowedQrOrigins, boxQrPath, parseBoxQr } from "@/lib/qr";
 import { secondaryButtonClass } from "./ui";
 
-// Camera barcode scanner for the Add screen ("Скан" tab).
+// Camera scanner, two modes:
+//   kind="barcode" — EAN/UPC of a medication pack (Add screen, "Скан" tab);
+//   kind="qr"      — Local Pharm box sticker (Storage → "Скан QR коробки").
+// A QR is read with our own parser (lib/qr.ts): only this site's /q/<token>
+// opens a box; any other QR shows "Это не наклейка Local Pharm" and the
+// camera keeps scanning — the app never goes to an address from a foreign QR.
 //
-// Decoder: the browser's BarcodeDetector where it exists and knows EAN
+// Decoder: the browser's BarcodeDetector where it exists and knows the format
 // (Chrome on Android, macOS); everywhere else — iOS Safari, Firefox, desktop
-// Linux/Windows Chrome — ZXing (@zxing/browser), loaded with import() only
-// when this tab is open, so other screens never download it.
+// Linux/Windows Chrome — ZXing (@zxing/browser / @zxing/library), loaded with
+// import() only when the scanner is open, so other screens never download it.
 // The camera stops when the component unmounts (another tab, navigation),
 // when the page is hidden, and as soon as a code is read.
 
@@ -28,18 +35,37 @@ type Status =
   | "load-failed"
   | "error";
 
-const MESSAGES: Partial<Record<Status, string>> = {
-  insecure:
-    "Камера работает только на защищённом адресе (https://). Откройте приложение по https-ссылке или введите штрихкод вручную.",
-  unsupported: "Этот браузер не даёт доступ к камере. Введите штрихкод вручную.",
-  denied:
-    "Нет доступа к камере. Разрешите его в настройках браузера для этого сайта и нажмите «Попробовать снова» — или введите штрихкод вручную.",
-  "no-camera": "Камера не найдена. Введите штрихкод вручную.",
-  busy: "Камера занята другим приложением. Закройте его и нажмите «Попробовать снова».",
-  "load-failed": "Не удалось загрузить сканер. Проверьте интернет и нажмите «Попробовать снова».",
-  error: "Не удалось включить камеру. Нажмите «Попробовать снова» или введите штрихкод вручную.",
-  paused: "Камера выключена.",
+export type ScanKind = "barcode" | "qr";
+
+const MANUAL: Record<ScanKind, { lower: string; upper: string }> = {
+  barcode: { lower: "введите штрихкод вручную", upper: "Введите штрихкод вручную" },
+  qr: { lower: "вставьте ссылку с наклейки вручную", upper: "Вставьте ссылку с наклейки вручную" },
 };
+
+function messages(kind: ScanKind): Partial<Record<Status, string>> {
+  const { lower, upper } = MANUAL[kind];
+  return {
+    insecure: `Камера работает только на защищённом адресе (https://). Откройте приложение по https-ссылке или ${lower}.`,
+    unsupported: `Этот браузер не даёт доступ к камере. ${upper}.`,
+    denied: `Нет доступа к камере. Разрешите его в настройках браузера для этого сайта и нажмите «Попробовать снова» — или ${lower}.`,
+    "no-camera": `Камера не найдена. ${upper}.`,
+    busy: "Камера занята другим приложением. Закройте его и нажмите «Попробовать снова».",
+    "load-failed": "Не удалось загрузить сканер. Проверьте интернет и нажмите «Попробовать снова».",
+    error: `Не удалось включить камеру. Нажмите «Попробовать снова» или ${lower}.`,
+    paused: "Камера выключена.",
+  };
+}
+
+const HINTS: Record<ScanKind, { aim: string; found: string }> = {
+  barcode: { aim: "Наведите камеру на штрихкод", found: "Штрихкод прочитан, ищем…" },
+  qr: { aim: "Наведите камеру на QR-код коробки", found: "QR прочитан, открываем коробку…" },
+};
+
+/** Downscale factors tried in turn by the ZXing QR loop (see the comment there). */
+const QR_SCALES = [1, 2, 3, 4];
+
+/** How long "Это не наклейка Local Pharm" stays on the camera after a foreign QR. */
+const FOREIGN_HINT_MS = 2500;
 
 const RETRYABLE: Status[] = ["denied", "busy", "load-failed", "error", "paused"];
 
@@ -57,19 +83,28 @@ type NativeDetectorCtor = {
   new (options: { formats: string[] }): NativeDetector;
   getSupportedFormats(): Promise<string[]>;
 };
-const NATIVE_FORMATS = ["ean_13", "ean_8", "upc_a"];
+/** Native formats per mode; the first one must be supported to use the native API. */
+const NATIVE_FORMATS: Record<ScanKind, string[]> = {
+  barcode: ["ean_13", "ean_8", "upc_a"],
+  qr: ["qr_code"],
+};
 
 type Props = {
-  /** Kept in the result URL ("Добавить сюда"). */
+  kind?: ScanKind;
+  /** Barcode mode: kept in the result URL ("Добавить сюда"). */
   box?: string;
   cell?: string;
 };
 
-export function BarcodeScanner({ box, cell }: Props) {
+export function BarcodeScanner({ kind = "barcode", box, cell }: Props) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState<Status>("starting");
   const [attempt, setAttempt] = useState(0);
+  const [foreign, setForeign] = useState(false);
+  const foreignTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(foreignTimer.current), []);
 
   // Pause when the page is hidden (app switch, locked phone): frees the camera.
   useEffect(() => {
@@ -99,6 +134,21 @@ export function BarcodeScanner({ box, cell }: Props) {
 
     const onText = (text: string) => {
       if (cancelled) return;
+      if (kind === "qr") {
+        const parsed = parseBoxQr(text, allowedQrOrigins(window.location.origin, getSiteUrlOverride()));
+        if (!parsed.ok) {
+          // Someone else's QR: say so, never open it, keep scanning.
+          setForeign(true);
+          clearTimeout(foreignTimer.current);
+          foreignTimer.current = setTimeout(() => setForeign(false), FOREIGN_HINT_MS);
+          return;
+        }
+        stopAll();
+        setForeign(false);
+        setStatus("found");
+        router.push(boxQrPath(parsed.token));
+        return;
+      }
       const parsed = parseBarcode(text);
       if (!parsed.ok) return; // misread or a non-retail code: keep scanning
       stopAll();
@@ -127,8 +177,9 @@ export function BarcodeScanner({ box, cell }: Props) {
       if (Native) {
         try {
           const supported = await Native.getSupportedFormats();
-          const formats = NATIVE_FORMATS.filter((f) => supported.includes(f));
-          if (formats.includes("ean_13")) native = new Native({ formats });
+          const wanted = NATIVE_FORMATS[kind];
+          const formats = wanted.filter((f) => supported.includes(f));
+          if (formats.includes(wanted[0])) native = new Native({ formats });
         } catch {
           native = null;
         }
@@ -156,13 +207,58 @@ export function BarcodeScanner({ box, cell }: Props) {
       }
 
       try {
+        if (kind === "qr") {
+          // ZXing-js finds a QR only when a module is ≤ ~4 px in the image it
+          // gets; a sticker held close to the camera is much bigger. So every
+          // tick decodes the frame at one of several sizes (full, ½, ⅓, ¼).
+          const { BinaryBitmap, DecodeHintType, HybridBinarizer, QRCodeReader, RGBLuminanceSource } =
+            await import("@zxing/library");
+          if (cancelled) return;
+          video.srcObject = stream;
+          await video.play().catch(() => undefined);
+          if (cancelled) return;
+          setStatus("scanning");
+          const reader = new QRCodeReader();
+          const hints = new Map([[DecodeHintType.TRY_HARDER, true]]);
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          let step = 0;
+          const tick = () => {
+            if (cancelled) return;
+            if (ctx && video.readyState >= 2 && video.videoWidth > 0) {
+              const f = QR_SCALES[step++ % QR_SCALES.length];
+              const w = Math.max(1, Math.round(video.videoWidth / f));
+              const h = Math.max(1, Math.round(video.videoHeight / f));
+              canvas.width = w;
+              canvas.height = h;
+              ctx.drawImage(video, 0, 0, w, h);
+              const { data } = ctx.getImageData(0, 0, w, h);
+              const lum = new Uint8ClampedArray(w * h);
+              for (let i = 0; i < lum.length; i++) {
+                lum[i] = (data[i * 4] * 299 + data[i * 4 + 1] * 587 + data[i * 4 + 2] * 114) / 1000;
+              }
+              try {
+                const bitmap = new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(lum, w, h)));
+                onText(reader.decode(bitmap, hints).getText());
+              } catch {
+                // no QR at this size — the next tick tries another one
+              }
+              reader.reset();
+            }
+            if (!cancelled) timer = setTimeout(tick, 120);
+          };
+          tick();
+          return;
+        }
+
         const [{ BrowserMultiFormatReader }, { BarcodeFormat, DecodeHintType }] = await Promise.all([
           import("@zxing/browser"),
           import("@zxing/library"),
         ]);
         if (cancelled) return;
+        const formats = [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A];
         const hints = new Map<unknown, unknown>([
-          [DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.EAN_13, BarcodeFormat.EAN_8, BarcodeFormat.UPC_A]],
+          [DecodeHintType.POSSIBLE_FORMATS, formats],
           [DecodeHintType.TRY_HARDER, true],
         ]);
         const reader = new BrowserMultiFormatReader(hints as Map<never, unknown>, {
@@ -182,9 +278,10 @@ export function BarcodeScanner({ box, cell }: Props) {
     })();
 
     return stopAll;
-  }, [active, attempt, router, box, cell]);
+  }, [active, attempt, router, box, cell, kind]);
 
-  const message = MESSAGES[status];
+  const message = messages(kind)[status];
+  const hint = HINTS[kind];
   const showVideo = status === "starting" || status === "scanning" || status === "found";
 
   return (
@@ -199,15 +296,22 @@ export function BarcodeScanner({ box, cell }: Props) {
         />
         {showVideo ? (
           <>
-            <div aria-hidden="true" className="relative h-2/5 w-3/4 rounded-field border-2 border-accent" />
+            <div
+              aria-hidden="true"
+              className={`relative rounded-field border-2 border-accent ${
+                kind === "qr" ? "aspect-square h-3/5" : "h-2/5 w-3/4"
+              }`}
+            />
             {/* Navy plate under the hint: the camera picture may be light. */}
             <p className="absolute inset-x-3 bottom-3 flex justify-center" role="status">
               <span className="rounded-tag bg-navy/85 px-3 py-1.5 text-center text-[13px] text-white">
                 {status === "starting"
                   ? "Включаем камеру…"
                   : status === "found"
-                    ? "Штрихкод прочитан, ищем…"
-                    : "Наведите камеру на штрихкод"}
+                    ? hint.found
+                    : foreign
+                      ? `${QR_ERRORS.foreign} Наведите камеру на QR-код коробки.`
+                      : hint.aim}
               </span>
             </p>
           </>

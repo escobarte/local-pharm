@@ -12,7 +12,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Основная навигация"
-      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)] lg:hidden"
+      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)] lg:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-md items-end px-2 pt-2">
         {NAV_ITEMS.map((item) => {

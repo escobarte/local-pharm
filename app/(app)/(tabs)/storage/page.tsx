@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BoxDetail } from "@/components/BoxDetail";
 import { DesktopSelectLink } from "@/components/DesktopSelectLink";
-import { IconPlus } from "@/components/icons";
+import { IconPlus, IconPrint, IconQr } from "@/components/icons";
 import { Page } from "@/components/Page";
-import { dashedButtonClass, sectionTitleClass } from "@/components/ui";
+import { dashedButtonClass, secondaryButtonClass, sectionTitleClass } from "@/components/ui";
 import { packsShort, storageSummary } from "@/lib/format";
 import { boxColorClasses } from "@/lib/storage/box-colors";
 import { getBox, getBoxDetail, getStorageOverview } from "@/lib/storage/queries";
@@ -36,6 +36,8 @@ export default async function StoragePage({ searchParams }: Props) {
       Новая коробка
     </>
   );
+  const headerLinkClass =
+    "flex min-h-11 items-center gap-2 rounded-field border border-border bg-surface px-4 text-sm font-semibold text-navy no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 
   return (
     <Page wide>
@@ -45,11 +47,26 @@ export default async function StoragePage({ searchParams }: Props) {
             <h1 className="text-[28px] leading-tight font-bold tracking-[-0.3px]">Хранение</h1>
             <p className="text-sm text-muted">{storageSummary(totals)}</p>
           </div>
-          <div className="hidden lg:flex">
-            <Link
-              href="/storage/new"
-              className="flex min-h-11 items-center gap-2 rounded-field border border-border bg-surface px-4 text-sm font-semibold text-navy no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
-            >
+          {/* Mobile: one navy button "scan a box QR" (mockup Storage-v3). */}
+          <Link
+            href="/storage/scan"
+            aria-label="Сканировать QR коробки"
+            className="flex size-12 flex-none items-center justify-center rounded-button bg-navy text-white hover:bg-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:hidden"
+          >
+            <IconQr size={22} />
+          </Link>
+          <div className="hidden gap-2 lg:flex">
+            <Link href="/storage/scan" className={headerLinkClass}>
+              <IconQr size={20} />
+              Сканировать QR
+            </Link>
+            {allBoxes.length > 0 ? (
+              <Link href="/storage/labels" className={headerLinkClass}>
+                <IconPrint size={20} />
+                Печать наклеек
+              </Link>
+            ) : null}
+            <Link href="/storage/new" className={headerLinkClass}>
               {newBoxLink}
             </Link>
           </div>
@@ -121,10 +138,16 @@ export default async function StoragePage({ searchParams }: Props) {
           ) : null}
         </div>
 
-        <div className="flex flex-col lg:hidden">
+        <div className="flex flex-col gap-2 lg:hidden">
           <Link href="/storage/new" className={dashedButtonClass}>
             {newBoxLink}
           </Link>
+          {allBoxes.length > 0 ? (
+            <Link href="/storage/labels" className={`${secondaryButtonClass} gap-2 text-sm no-underline`}>
+              <IconPrint size={20} />
+              Печать наклеек
+            </Link>
+          ) : null}
         </div>
       </main>
     </Page>

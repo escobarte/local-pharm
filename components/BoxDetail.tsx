@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AddCompartmentForm } from "@/components/AddCompartmentForm";
+import { BoxQrPreview } from "@/components/BoxQrPreview";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconCheck, IconEdit, IconPill } from "@/components/icons";
 import {
@@ -39,7 +40,8 @@ type Props = {
 /**
  * A box: title, compartment scheme, contents of the selected compartment and
  * the actions. Shared by /storage/[boxId] (mobile, QR) and the desktop
- * master-detail panel on /storage.
+ * master-detail panel on /storage. "Печать QR" opens /storage/labels with
+ * only this box selected.
  */
 export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading = "h1" }: Props) {
   const today = todayIso();
@@ -182,17 +184,14 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
             Добавить сюда
           </Link>
         ) : null}
-        <button
-          type="button"
-          disabled
-          aria-describedby="qr-soon"
-          className={`${secondaryButtonClass} flex-1 flex-col text-sm leading-tight`}
+        <Link
+          href={`/storage/labels?box=${box.id}`}
+          className={`${secondaryButtonClass} flex-1 gap-2.5 text-sm no-underline`}
         >
+          {/* Small preview of the sticker's QR (same URL as on paper). */}
+          <BoxQrPreview token={box.qrToken} className="size-9 flex-none text-navy" />
           Печать QR
-          <span id="qr-soon" className="text-[11px] font-medium">
-            скоро
-          </span>
-        </button>
+        </Link>
       </div>
 
       <section
