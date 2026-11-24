@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { FormField, fieldAria } from "@/components/FormField";
+import { ExpiryPicker } from "@/components/ExpiryPicker";
 import { IconPlus } from "@/components/icons";
 import { PlacePicker, usePlaceSelection, type PlaceBox } from "@/components/PlacePicker";
 import { SubmitButton } from "@/components/SubmitButton";
@@ -198,37 +199,22 @@ export function AddForm({
             Упаковка
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
-            <FormField label="Количество, шт." htmlFor="quantity" error={errors.quantity}>
-              <input
-                {...fieldAria("quantity", errors.quantity)}
-                name="quantity"
-                type="text"
-                inputMode="numeric"
-                required
-                maxLength={4}
-                autoComplete="off"
-                defaultValue={v("quantity", "1")}
-                className={inputClass}
-              />
-            </FormField>
-            <FormField
-              label="Годен до"
-              htmlFor="expiry"
-              error={errors.expiry}
-              hint={errors.expiry ? undefined : "ММ/ГГГГ, можно пусто"}
-            >
-              <input
-                {...fieldAria("expiry", errors.expiry, "hint")}
-                name="expiry"
-                type="text"
-                inputMode="numeric"
-                maxLength={10}
-                autoComplete="off"
-                placeholder="12/2026"
-                defaultValue={v("expiry")}
-                className={inputClass}
-              />
-            </FormField>
+            <div className="col-span-2">
+              <FormField label="Количество, шт." htmlFor="quantity" error={errors.quantity}>
+                <input
+                  {...fieldAria("quantity", errors.quantity)}
+                  name="quantity"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  maxLength={4}
+                  autoComplete="off"
+                  defaultValue={v("quantity", "1")}
+                  className={inputClass}
+                />
+              </FormField>
+            </div>
+            <ExpiryPicker className="col-span-2" defaultValue={v("expiry")} error={errors.expiry} />
             <PlacePicker boxes={boxes} selection={place} error={errors.compartmentId} />
           </div>
         </section>
