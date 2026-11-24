@@ -107,3 +107,15 @@ export const IconPrint = (p: IconProps) => (
     <path d="M7 14h10v6H7z" />
   </Svg>
 );
+
+export const IconArrowRight = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </Svg>
+);
+
+export const IconBarcode = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 6v12M8 6v12M13 6v12M17 6v12M20 6v12" />
+  </Svg>
+);

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { packsShort, plural, storageSummary } from "../lib/format.ts";
+import { packsShort, plural, storageSummary, storageSummaryParts } from "../lib/format.ts";
 
 const p = (n: number) => plural(n, "упаковка", "упаковки", "упаковок");
 
@@ -72,4 +72,17 @@ test("morePlacesLabel", () => {
   assert.equal(morePlacesLabel(1), "ещё 1 место");
   assert.equal(morePlacesLabel(3), "ещё 3 места");
   assert.equal(morePlacesLabel(5), "ещё 5 мест");
+});
+
+test("storageSummaryParts keeps the numbers apart from the words", () => {
+  assert.deepEqual(storageSummaryParts({ zones: 3, boxes: 2, packs: 3 }), [
+    { n: 3, word: "зоны" },
+    { n: 2, word: "коробки" },
+    { n: 3, word: "упаковки" },
+  ]);
+  assert.deepEqual(storageSummaryParts({ zones: 1, boxes: 5, packs: 21 }).map((p) => `${p.n} ${p.word}`), [
+    "1 зона",
+    "5 коробок",
+    "21 упаковка",
+  ]);
 });

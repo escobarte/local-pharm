@@ -3,7 +3,8 @@ import Link from "next/link";
 import { LabelSheet } from "@/components/LabelSheet";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { primaryButtonClass } from "@/components/ui";
+import { IconPlus } from "@/components/icons";
+import { addButtonClass } from "@/components/ui";
 import { parseLabelSize } from "@/lib/labels";
 import { getLabelBoxes } from "@/lib/storage/queries";
 import { isUuid } from "@/lib/storage/validation";
@@ -39,7 +40,8 @@ export default async function LabelsPage({ searchParams }: Props) {
           <p className="rounded-card border border-dashed border-border px-4 py-5 text-[13px] text-muted">
             Пока нет коробок — печатать нечего.
           </p>
-          <Link href="/storage/new" className={`${primaryButtonClass} no-underline`}>
+          <Link href="/storage/new" className={addButtonClass}>
+            <IconPlus size={20} strokeWidth={2.2} />
             Новая коробка
           </Link>
         </main>

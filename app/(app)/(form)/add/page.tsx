@@ -18,7 +18,15 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { FormField } from "@/components/FormField";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { errorBoxClass, inputClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from "@/components/ui";
+import { IconBarcode, IconPlus } from "@/components/icons";
+import {
+  addButtonClass,
+  errorBoxClass,
+  inputClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  sectionTitleClass,
+} from "@/components/ui";
 import { addPageHref, parseOpenFdaPick, type AddMode, type AddParams } from "@/lib/add-href";
 import { categoryForAtc } from "@/lib/amdm/atc-category";
 import { prefillFromRegistry } from "@/lib/amdm/format";
@@ -95,7 +103,8 @@ export default async function AddPage({ searchParams }: Props) {
       <p className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">
         Сначала создайте коробку и отсек, куда положить упаковку.
       </p>
-      <Link href="/storage/new" className={`${primaryButtonClass} no-underline`}>
+      <Link href="/storage/new" className={addButtonClass}>
+        <IconPlus size={20} strokeWidth={2.2} />
         Создать коробку
       </Link>
     </main>
@@ -162,7 +171,7 @@ export default async function AddPage({ searchParams }: Props) {
           <p role="alert" className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">
             Препарат с кодом {pickedCode} не найден в реестре AMDM.
           </p>
-          <Link href={href({ mode: "search", q: query, bc })} className={`${primaryButtonClass} no-underline`}>
+          <Link href={href({ mode: "search", q: query, bc })} className={secondaryButtonClass}>
             Вернуться к поиску
           </Link>
         </main>
@@ -297,7 +306,7 @@ export default async function AddPage({ searchParams }: Props) {
             <p role="alert" className={errorBoxClass}>
               Не удалось проверить штрихкод {code}. Проверьте интернет и попробуйте ещё раз.
             </p>
-            <Link href={href({ mode: "scan", code })} className={`${primaryButtonClass} no-underline lg:self-start`}>
+            <Link href={href({ mode: "scan", code })} className={`${secondaryButtonClass} lg:self-start`}>
               Попробовать ещё раз
             </Link>
           </main>
@@ -310,7 +319,8 @@ export default async function AddPage({ searchParams }: Props) {
       if (outcome.kind === "none") redirect(href({ mode: "search", bc: code, notFound: true }));
 
       const again = (
-        <Link href={href({ mode: "scan" })} className={`${secondaryButtonClass} no-underline lg:self-start`}>
+        <Link href={href({ mode: "scan" })} className={`${secondaryButtonClass} lg:self-start`}>
+          <IconBarcode size={20} />
           Сканировать другой
         </Link>
       );

@@ -8,7 +8,7 @@ import { BOX_COLORS, DEFAULT_BOX_COLOR } from "@/lib/storage/box-colors";
 import { FormField, fieldAria } from "./FormField";
 import { IconCheck } from "./icons";
 import { SubmitButton } from "./SubmitButton";
-import { errorBoxClass, inputClass, primaryButtonClass, secondaryButtonClass } from "./ui";
+import { addButtonClass, errorBoxClass, inputClass, primaryButtonClass, secondaryButtonClass } from "./ui";
 
 export type BoxFormInitial = {
   boxId?: string;
@@ -23,10 +23,12 @@ type Props = {
   zones: { id: string; name: string }[];
   initial: BoxFormInitial;
   submitLabel: string;
+  /** "add": creating a box (accent). "save": saving changes (navy). */
+  submitTone?: "add" | "save";
   cancelHref: string;
 };
 
-export function BoxForm({ action, zones, initial, submitLabel, cancelHref }: Props) {
+export function BoxForm({ action, zones, initial, submitLabel, submitTone = "add", cancelHref }: Props) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, initialActionState);
   const errors = state.fieldErrors ?? {};
   // After a failed submit React resets the form, so refill from what was sent.
@@ -121,7 +123,9 @@ export function BoxForm({ action, zones, initial, submitLabel, cancelHref }: Pro
       </fieldset>
 
       <div className="mt-2 flex flex-col gap-2">
-        <SubmitButton className={primaryButtonClass}>{submitLabel}</SubmitButton>
+        <SubmitButton className={submitTone === "add" ? addButtonClass : primaryButtonClass}>
+          {submitLabel}
+        </SubmitButton>
         <Link href={cancelHref} className={secondaryButtonClass}>
           Отмена
         </Link>

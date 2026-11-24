@@ -5,6 +5,7 @@ import { getSiteUrlOverride } from "@/lib/env";
 import { numberFontMm, LABEL_SIZES, labelBox, mmToCqw, pageCount, paginate, sheetLayout, type LabelSize, type SheetLayout } from "@/lib/labels";
 import { boxQrUrl, qrOrigin } from "@/lib/qr";
 import type { LabelBoxRow } from "@/lib/storage/queries";
+import { IconPrint } from "./icons";
 import { QrCode } from "./QrCode";
 import { primaryButtonClass, secondaryButtonClass, sectionTitleClass } from "./ui";
 
@@ -69,6 +70,7 @@ export function LabelSheet({ boxes, initialSelected, initialSize }: Props) {
       disabled={chosen.length === 0 || !origin}
       className={`${primaryButtonClass} ${extra}`}
     >
+      <IconPrint size={20} />
       Печать
     </button>
   );

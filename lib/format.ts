@@ -17,8 +17,23 @@ export const packsLabel = (n: number) => `${n} ${plural(n, "упаковка", "
 export const compartmentsLabel = (n: number) =>
   `${n} ${plural(n, "отсек", "отсека", "отсеков")}`;
 
+/** The three parts of the storage summary: a number and its word ("3" + "зоны"). */
+export function storageSummaryParts(counts: {
+  zones: number;
+  boxes: number;
+  packs: number;
+}): { n: number; word: string }[] {
+  return [
+    { n: counts.zones, word: plural(counts.zones, "зона", "зоны", "зон") },
+    { n: counts.boxes, word: plural(counts.boxes, "коробка", "коробки", "коробок") },
+    { n: counts.packs, word: plural(counts.packs, "упаковка", "упаковки", "упаковок") },
+  ];
+}
+
 export function storageSummary(counts: { zones: number; boxes: number; packs: number }): string {
-  return [zonesLabel(counts.zones), boxesLabel(counts.boxes), packsLabel(counts.packs)].join(" · ");
+  return storageSummaryParts(counts)
+    .map((part) => `${part.n} ${part.word}`)
+    .join(" · ");
 }
 
 /** Short pack count for tiles and cells: "3 упак." / "пусто". */

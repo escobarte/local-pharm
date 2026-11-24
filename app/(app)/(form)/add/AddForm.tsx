@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { FormField, fieldAria } from "@/components/FormField";
+import { IconPlus } from "@/components/icons";
 import { PlacePicker, usePlaceSelection, type PlaceBox } from "@/components/PlacePicker";
 import { SubmitButton } from "@/components/SubmitButton";
 import {
@@ -10,7 +11,7 @@ import {
   formFooterClass,
   formSubmitClass,
   inputClass,
-  primaryButtonClass,
+  addButtonClass,
   secondaryButtonClass,
   sectionTitleClass,
 } from "@/components/ui";
@@ -90,8 +91,9 @@ export function AddForm({
             <div className="flex flex-col gap-2 lg:flex-row">
               <Link
                 href={`/medications/${state.duplicate.id}/pack/new${place.compartmentId ? `?cell=${place.compartmentId}` : ""}`}
-                className={`${primaryButtonClass} no-underline`}
+                className={addButtonClass}
               >
+                <IconPlus size={20} strokeWidth={2.2} />
                 Добавить упаковку к существующему
               </Link>
               <button type="submit" name="allowDuplicate" value="1" className={secondaryButtonClass}>

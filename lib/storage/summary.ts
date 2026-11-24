@@ -128,3 +128,58 @@ export function buildBoxDetail(
     categories: categoryLabel(inBox.map((p) => p.categoryName), inBox.length),
   };
 }
+
+/** Most compartments in one row of the scheme; more wrap to the next row with the same cell width. */
+export const MAX_CELL_COLUMNS = 4;
+
+/** Columns of the compartment scheme: one per compartment, up to MAX_CELL_COLUMNS. */
+export function compartmentColumns(count: number): number {
+  return Math.min(Math.max(Math.trunc(count), 1), MAX_CELL_COLUMNS);
+}
+
+/** A box row of the home screen with the packs counted by the database in the same request. */
+export type RawHomeBox = {
+  id: string;
+  name: string;
+  number: string | null;
+  color: string | null;
+  locations: { name: string; sort_order: number } | null;
+  /** Embedded `compartments(packs(count))`: one `{ count }` per compartment. */
+  compartments: { packs: { count: number }[] | null }[] | null;
+};
+
+export type HomeBox = {
+  id: string;
+  name: string;
+  number: string | null;
+  color: string | null;
+  zoneName: string;
+  packCount: number;
+};
+
+/** Boxes for the home screen: by zone (its sort order), then by number, then by name. */
+export function buildHomeBoxes(rows: readonly RawHomeBox[]): HomeBox[] {
+  return rows
+    .map((r) => ({
+      order: r.locations?.sort_order ?? Number.MAX_SAFE_INTEGER,
+      box: {
+        id: r.id,
+        name: r.name,
+        number: r.number,
+        color: r.color,
+        zoneName: r.locations?.name ?? "",
+        packCount: (r.compartments ?? []).reduce(
+          (sum, c) => sum + (c.packs ?? []).reduce((s, p) => s + p.count, 0),
+          0,
+        ),
+      },
+    }))
+    .sort(
+      (a, b) =>
+        a.order - b.order ||
+        a.box.zoneName.localeCompare(b.box.zoneName, "ru") ||
+        (a.box.number ?? "").localeCompare(b.box.number ?? "", "ru", { numeric: true }) ||
+        a.box.name.localeCompare(b.box.name, "ru", { numeric: true }),
+    )
+    .map((x) => x.box);
+}

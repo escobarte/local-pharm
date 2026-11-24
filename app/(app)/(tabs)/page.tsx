@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BoxTile } from "@/components/BoxTile";
+import { IconPlus } from "@/components/icons";
 import { Page } from "@/components/Page";
 import { SearchBox } from "@/components/SearchBox";
-import { sectionTitleClass, secondaryButtonClass } from "@/components/ui";
+import { addButtonClass, sectionTitleClass, secondaryButtonClass } from "@/components/ui";
 import { todayIso } from "@/lib/dates";
 import { expiredText, expiringText, lowStockText } from "@/lib/format";
 import { getAttentionPacks } from "@/lib/medications/queries";
 import { attentionCounts, searchHref } from "@/lib/medications/search";
-import { getCategories } from "@/lib/storage/queries";
+import { getCategories, getHomeBoxes } from "@/lib/storage/queries";
 import { signOut } from "../actions";
 
 export const metadata: Metadata = { title: "Local Pharm" };
@@ -21,7 +23,11 @@ const TONES = {
 } as const;
 
 export default async function HomePage() {
-  const [packs, categories] = await Promise.all([getAttentionPacks(), getCategories()]);
+  const [packs, categories, boxes] = await Promise.all([
+    getAttentionPacks(),
+    getCategories(),
+    getHomeBoxes(),
+  ]);
   const counts = attentionCounts(packs, todayIso());
 
   const rows: Row[] = [];
@@ -108,6 +114,31 @@ export default async function HomePage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section aria-labelledby="boxes-title" className="flex flex-col gap-2">
+          <h2 id="boxes-title" className={sectionTitleClass}>
+            Мои коробки
+          </h2>
+          {boxes.length === 0 ? (
+            <div className="flex flex-col items-start gap-3 rounded-card border border-dashed border-border px-4 py-5">
+              <p className="text-[13px] leading-normal text-muted">
+                Коробок пока нет. Создайте первую, чтобы раскладывать упаковки по местам.
+              </p>
+              <Link href="/storage/new" className={`${addButtonClass} w-full lg:w-auto lg:px-8`}>
+                <IconPlus size={20} strokeWidth={2.2} />
+                Новая коробка
+              </Link>
+            </div>
+          ) : (
+            <ul className="grid grid-cols-2 gap-2 lg:grid-cols-[repeat(auto-fill,minmax(240px,1fr))] lg:gap-3">
+              {boxes.map((b) => (
+                <li key={b.id}>
+                  <BoxTile box={b} subtitle={b.zoneName} />
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {/* Desktop: "Выйти" lives in the side menu. */}

@@ -4,7 +4,7 @@ import { BoxForm } from "@/components/BoxForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { dangerOutlineButtonClass, sectionTitleClass } from "@/components/ui";
+import { dangerTextButtonClass, sectionTitleClass } from "@/components/ui";
 import { deleteBox, updateBox } from "@/lib/storage/actions";
 import { DEFAULT_BOX_COLOR, isBoxColor } from "@/lib/storage/box-colors";
 import { getBox, getLocations } from "@/lib/storage/queries";
@@ -24,6 +24,7 @@ export default async function EditBoxPage({ params }: { params: Promise<{ boxId:
         action={updateBox}
         zones={zones}
         submitLabel="Сохранить"
+        submitTone="save"
         cancelHref={`/storage/${box.id}`}
         initial={{
           boxId: box.id,
@@ -37,7 +38,7 @@ export default async function EditBoxPage({ params }: { params: Promise<{ boxId:
         <h2 className={sectionTitleClass}>Опасная зона</h2>
         <ConfirmDialog
           triggerLabel="Удалить коробку"
-          triggerClassName={dangerOutlineButtonClass}
+          triggerClassName={`${dangerTextButtonClass} self-start`}
           title={`Удалить «${box.name}»?`}
           description="Коробка и все её отсеки будут удалены. Если в коробке есть упаковки, удалить её нельзя: сначала переложите или удалите их."
           confirmLabel="Удалить коробку"

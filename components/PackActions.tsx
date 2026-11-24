@@ -3,8 +3,9 @@
 import { useActionState } from "react";
 import { setLowStock, takeOne } from "@/lib/medications/actions";
 import { initialActionState, type ActionState } from "@/lib/storage/action-state";
+import { IconCheck } from "./icons";
 import { SubmitButton } from "./SubmitButton";
-import { errorBoxClass, primaryButtonClass, secondaryButtonClass, warnButtonClass } from "./ui";
+import { errorBoxClass, primaryButtonSmClass, secondaryButtonSmClass, warnButtonSmClass } from "./ui";
 
 type Props = { packId: string; quantity: number; lowStock: boolean };
 
@@ -20,11 +21,11 @@ export function PackActions({ packId, quantity, lowStock }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-[minmax(0,4fr)_minmax(0,5fr)] gap-2">
         <form action={takeAction}>
           <input type="hidden" name="packId" value={packId} />
           <SubmitButton
-            className={`${primaryButtonClass} min-h-12 w-full text-sm`}
+            className={`${primaryButtonSmClass} w-full`}
             pendingText="Списываем…"
             disabled={quantity <= 0}
           >
@@ -35,11 +36,18 @@ export function PackActions({ packId, quantity, lowStock }: Props) {
           <input type="hidden" name="packId" value={packId} />
           <input type="hidden" name="lowStock" value={lowStock ? "false" : "true"} />
           <SubmitButton
-            className={`${lowStock ? warnButtonClass : secondaryButtonClass} min-h-12 w-full text-sm`}
+            className={`${lowStock ? warnButtonSmClass : secondaryButtonSmClass} w-full`}
             pressed={lowStock}
             pendingText="Сохраняем…"
           >
-            {lowStock ? "Заканчивается ✓" : "Заканчивается"}
+            {lowStock ? (
+              <>
+                <IconCheck size={18} strokeWidth={2.2} className="flex-none" />
+                Заканчивается
+              </>
+            ) : (
+              "Заканчивается"
+            )}
           </SubmitButton>
         </form>
       </div>

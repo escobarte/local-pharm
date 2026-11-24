@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { IconStorage } from "@/components/icons";
 import { Page } from "@/components/Page";
-import { primaryButtonClass } from "@/components/ui";
+import { secondaryButtonClass } from "@/components/ui";
 
 /** Unknown or malformed sticker. No details: the token is never echoed back. */
 export default function QrNotFound() {
@@ -15,7 +15,7 @@ export default function QrNotFound() {
         <p className="text-[15px] leading-normal text-muted">
           Этой наклейки нет в вашем хранении: коробку могли удалить, или код с ошибкой.
         </p>
-        <Link href="/storage" className={`${primaryButtonClass} w-full no-underline`}>
+        <Link href="/storage" className={`${secondaryButtonClass} w-full`}>
           К списку коробок
         </Link>
       </main>

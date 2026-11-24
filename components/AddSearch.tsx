@@ -10,11 +10,13 @@ import { pcsLabel } from "@/lib/format";
 import { placeLabel, sourceName, type SearchResult } from "@/lib/medications/search";
 import type { OpenFdaItem } from "@/lib/openfda/parse";
 import { searchOpenFda } from "@/lib/openfda/fetch";
-import { IconSearch } from "./icons";
+import { IconArrowRight, IconPlus, IconSearch } from "./icons";
 import {
+  addButtonClass,
+  addButtonSmClass,
   errorBoxClass,
   inputClass,
-  primaryButtonClass,
+  navLinkClass,
   secondaryButtonClass,
   sectionTitleClass,
   sourceTagClass,
@@ -27,8 +29,6 @@ import {
 const noteClass = "rounded-card border border-dashed border-border px-4 py-5 text-[13px] leading-normal text-muted";
 const cardLinkClass =
   "flex min-h-11 flex-col gap-1 rounded-card border border-border bg-surface p-4 no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:h-full";
-const smallLinkClass =
-  "flex min-h-11 flex-1 items-center justify-center rounded-field px-2 text-[13px] font-semibold no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 const listClass = "flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:gap-3";
 
 // ---------- Search form ----------
@@ -118,12 +118,14 @@ export function HomeResults({ results, packHref }: { results: SearchResult[]; pa
                 </div>
                 {sub ? <p className="text-[13px] leading-snug break-words text-muted">{sub}</p> : null}
                 <p className="text-[13px] leading-snug break-words">{meta}</p>
-                <div className="flex gap-2 border-t border-tint pt-2">
-                  <Link href={packHref(med.id)} className={`${smallLinkClass} bg-navy text-white hover:bg-navy/90`}>
+                <div className="flex items-center justify-between gap-2 border-t border-tint pt-2">
+                  <Link href={packHref(med.id)} className={addButtonSmClass}>
+                    <IconPlus size={18} strokeWidth={2.2} />
                     Добавить упаковку
                   </Link>
-                  <Link href={`/medications/${med.id}`} className={`${smallLinkClass} text-navy hover:bg-tint`}>
+                  <Link href={`/medications/${med.id}`} className={`${navLinkClass} flex-none`}>
                     Открыть
+                    <IconArrowRight size={16} strokeWidth={2} />
                   </Link>
                 </div>
               </li>
@@ -349,13 +351,14 @@ export function DuplicateNotice({
               {m.name}
               {m.dosage ? ` ${m.dosage}` : ""}
             </Link>
-            <Link href={packHref(m.id)} className={`${primaryButtonClass} no-underline lg:min-w-72`}>
+            <Link href={packHref(m.id)} className={`${addButtonClass} lg:min-w-72`}>
+              <IconPlus size={20} strokeWidth={2.2} />
               Добавить упаковку к существующему
             </Link>
           </li>
         ))}
       </ul>
-      <Link href={separateHref} className={`${secondaryButtonClass} no-underline lg:self-start`}>
+      <Link href={separateHref} className={`${secondaryButtonClass} lg:self-start`}>
         Создать отдельную запись
       </Link>
     </section>

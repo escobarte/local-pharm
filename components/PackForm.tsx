@@ -6,7 +6,7 @@ import { initialActionState } from "@/lib/storage/action-state";
 import { FormField, fieldAria } from "./FormField";
 import { PlacePicker, usePlaceSelection, type PlaceBox } from "./PlacePicker";
 import { SubmitButton } from "./SubmitButton";
-import { errorBoxClass, formFooterClass, formSubmitClass, inputClass } from "./ui";
+import { errorBoxClass, formFooterClass, formPrimarySubmitClass, formSubmitClass, inputClass } from "./ui";
 
 type Props = {
   action: FormAction;
@@ -93,7 +93,10 @@ export function PackForm({
       </main>
 
       <div className={`${formFooterClass} lg:max-w-xl`}>
-        <SubmitButton className={formSubmitClass} disabled={place.compartments.length === 0}>
+        <SubmitButton
+          className={mode === "move" ? formPrimarySubmitClass : formSubmitClass}
+          disabled={place.compartments.length === 0}
+        >
           {submitLabel}
         </SubmitButton>
       </div>

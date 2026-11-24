@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sortByCode } from "./sort";
-import { buildBoxDetail, buildOverview } from "./summary";
+import { buildBoxDetail, buildHomeBoxes, buildOverview, type RawHomeBox } from "./summary";
 import { isUuid } from "./validation";
 import type { BoxRow, CategoryRow, CompartmentRow, LocationRow, PackRow } from "./types";
 
@@ -92,6 +92,20 @@ export async function getStorageOverview() {
     (compartments.data ?? []) as CompartmentRow[],
     ((packs.data ?? []) as unknown as RawPack[]).map(normalizePack),
   );
+}
+
+/**
+ * Boxes for the home screen in ONE request: the zone and the pack count come
+ * embedded (`locations`, `compartments → packs(count)`), so no packs are
+ * downloaded. Sorted by zone, then number.
+ */
+export async function getHomeBoxes() {
+  const supabase = await client();
+  const { data, error } = await supabase
+    .from("boxes")
+    .select("id, name, number, color, locations(name, sort_order), compartments(packs(count))");
+  if (error) throw new Error(`home boxes: ${error.message}`);
+  return buildHomeBoxes((data ?? []) as unknown as RawHomeBox[]);
 }
 
 export const getBox = cache(

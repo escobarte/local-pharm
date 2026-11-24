@@ -5,7 +5,8 @@ import { MedicationHead, PackList } from "@/components/MedicationParts";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { SearchBox } from "@/components/SearchBox";
-import { primaryButtonClass, secondaryButtonClass } from "@/components/ui";
+import { IconArrowRight, IconPlus } from "@/components/icons";
+import { addButtonClass, navLinkClass, secondaryButtonClass } from "@/components/ui";
 import { todayIso } from "@/lib/dates";
 import { foundLabel } from "@/lib/format";
 import { getCatalog } from "@/lib/medications/queries";
@@ -104,7 +105,8 @@ export default async function SearchPage({ searchParams }: Props) {
             <p className="text-[15px] leading-normal">
               В базе пока нет препаратов. Добавьте первый, и он появится в поиске.
             </p>
-            <Link href="/add" className={`${primaryButtonClass} no-underline`}>
+            <Link href="/add" className={addButtonClass}>
+              <IconPlus size={20} strokeWidth={2.2} />
               Добавить препарат
             </Link>
           </section>
@@ -115,7 +117,7 @@ export default async function SearchPage({ searchParams }: Props) {
               или уберите фильтры.
             </p>
             {isFiltered ? (
-              <Link href="/search" className={`${secondaryButtonClass} no-underline`}>
+              <Link href="/search" className={secondaryButtonClass}>
                 Сбросить поиск
               </Link>
             ) : null}
@@ -145,17 +147,13 @@ export default async function SearchPage({ searchParams }: Props) {
               >
                 <MedicationHead med={selected.med} as="h2" />
                 <PackList med={selected.med} titleId="panel-packs-title" />
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href={`/medications/${selected.med.id}`}
-                    className={`${primaryButtonClass} text-sm no-underline`}
-                  >
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                  <Link href={`/medications/${selected.med.id}`} className={navLinkClass}>
                     Открыть карточку
+                    <IconArrowRight size={16} strokeWidth={2} />
                   </Link>
-                  <Link
-                    href={`/medications/${selected.med.id}/pack/new`}
-                    className={`${secondaryButtonClass} text-sm no-underline`}
-                  >
+                  <Link href={`/medications/${selected.med.id}/pack/new`} className={addButtonClass}>
+                    <IconPlus size={20} strokeWidth={2.2} />
                     Добавить упаковку
                   </Link>
                 </div>

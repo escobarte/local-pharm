@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BoxDetail } from "@/components/BoxDetail";
-import { DesktopSelectLink } from "@/components/DesktopSelectLink";
+import { BoxTile } from "@/components/BoxTile";
 import { IconPlus, IconPrint, IconQr } from "@/components/icons";
 import { Page } from "@/components/Page";
-import { dashedButtonClass, secondaryButtonClass, sectionTitleClass } from "@/components/ui";
-import { packsShort, storageSummary } from "@/lib/format";
-import { boxColorClasses } from "@/lib/storage/box-colors";
+import {
+  addButtonClass,
+  addButtonSmClass,
+  secondaryButtonClass,
+  secondaryButtonSmClass,
+  sectionTitleClass,
+} from "@/components/ui";
+import { plural, storageSummaryParts } from "@/lib/format";
 import { getBox, getBoxDetail, getStorageOverview } from "@/lib/storage/queries";
 import { isUuid } from "@/lib/storage/validation";
 
@@ -36,8 +41,6 @@ export default async function StoragePage({ searchParams }: Props) {
       Новая коробка
     </>
   );
-  const headerLinkClass =
-    "flex min-h-11 items-center gap-2 rounded-field border border-border bg-surface px-4 text-sm font-semibold text-navy no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 
   return (
     <Page wide>
@@ -45,28 +48,35 @@ export default async function StoragePage({ searchParams }: Props) {
         <header className="flex items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-[28px] leading-tight font-bold tracking-[-0.3px]">Хранение</h1>
-            <p className="text-sm text-muted">{storageSummary(totals)}</p>
+            <p className="text-sm text-muted">
+              {storageSummaryParts(totals).map((part, i) => (
+                <span key={part.word}>
+                  {i > 0 ? " · " : null}
+                  <strong className="font-bold text-navy">{part.n}</strong> {part.word}
+                </span>
+              ))}
+            </p>
           </div>
-          {/* Mobile: one navy button "scan a box QR" (mockup Storage-v3). */}
+          {/* Mobile: icon button "scan a box QR" (secondary, docs/BRAND.md "Кнопки"). */}
           <Link
             href="/storage/scan"
             aria-label="Сканировать QR коробки"
-            className="flex size-12 flex-none items-center justify-center rounded-button bg-navy text-white hover:bg-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:hidden"
+            className="flex size-12 flex-none items-center justify-center rounded-button border border-border bg-surface text-navy hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:hidden"
           >
             <IconQr size={22} />
           </Link>
           <div className="hidden gap-2 lg:flex">
-            <Link href="/storage/scan" className={headerLinkClass}>
+            <Link href="/storage/scan" className={secondaryButtonSmClass}>
               <IconQr size={20} />
               Сканировать QR
             </Link>
             {allBoxes.length > 0 ? (
-              <Link href="/storage/labels" className={headerLinkClass}>
+              <Link href="/storage/labels" className={secondaryButtonSmClass}>
                 <IconPrint size={20} />
                 Печать наклеек
               </Link>
             ) : null}
-            <Link href="/storage/new" className={headerLinkClass}>
+            <Link href="/storage/new" className={addButtonSmClass}>
               {newBoxLink}
             </Link>
           </div>
@@ -80,9 +90,15 @@ export default async function StoragePage({ searchParams }: Props) {
           <div className="flex flex-col gap-5">
             {zones.map((zone) => (
               <section key={zone.id} aria-labelledby={`zone-${zone.id}`} className="flex flex-col gap-2">
-                <h2 id={`zone-${zone.id}`} className={sectionTitleClass}>
-                  {zone.name}
-                </h2>
+                <div className="flex items-baseline gap-2.5">
+                  <h2 id={`zone-${zone.id}`} className={sectionTitleClass}>
+                    {zone.name}
+                  </h2>
+                  <p className="text-xs text-muted">
+                    <strong className="font-bold text-navy">{zone.boxes.length}</strong>{" "}
+                    {plural(zone.boxes.length, "коробка", "коробки", "коробок")}
+                  </p>
+                </div>
                 {zone.boxes.length === 0 ? (
                   <p className="rounded-card border border-dashed border-border px-4 py-5 text-[13px] text-muted">
                     В этой зоне пока нет коробок.
@@ -91,27 +107,7 @@ export default async function StoragePage({ searchParams }: Props) {
                   <ul className="grid grid-cols-2 gap-2 lg:grid-cols-1 xl:grid-cols-2">
                     {zone.boxes.map((b) => (
                       <li key={b.id}>
-                        <DesktopSelectLink
-                          href={`/storage/${b.id}`}
-                          desktopHref={`/storage?box=${b.id}`}
-                          selected={b.id === box?.id}
-                          className="flex h-full min-h-28 flex-col gap-2.5 rounded-card bg-surface p-3.5 text-navy no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:border lg:border-border lg:data-[selected=true]:border-navy lg:data-[selected=true]:ring-1 lg:data-[selected=true]:ring-navy"
-                        >
-                          <span className="flex items-center justify-between gap-2">
-                            <span
-                              className={`flex size-8 items-center justify-center rounded-field text-[13px] font-bold ${boxColorClasses(b.color)}`}
-                            >
-                              {b.number ?? "•"}
-                            </span>
-                            <span className="text-xs font-semibold text-muted">
-                              {packsShort(b.packCount)}
-                            </span>
-                          </span>
-                          <span className="flex flex-col gap-0.5">
-                            <span className="text-[15px] font-semibold break-words">{b.name}</span>
-                            <span className="text-xs leading-snug text-muted">{b.categories}</span>
-                          </span>
-                        </DesktopSelectLink>
+                        <BoxTile box={b} subtitle={b.categories} selected={b.id === box?.id} />
                       </li>
                     ))}
                   </ul>
@@ -139,11 +135,11 @@ export default async function StoragePage({ searchParams }: Props) {
         </div>
 
         <div className="flex flex-col gap-2 lg:hidden">
-          <Link href="/storage/new" className={dashedButtonClass}>
+          <Link href="/storage/new" className={addButtonClass}>
             {newBoxLink}
           </Link>
           {allBoxes.length > 0 ? (
-            <Link href="/storage/labels" className={`${secondaryButtonClass} gap-2 text-sm no-underline`}>
+            <Link href="/storage/labels" className={secondaryButtonClass}>
               <IconPrint size={20} />
               Печать наклеек
             </Link>

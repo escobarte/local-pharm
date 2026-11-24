@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildBoxDetail, buildOverview, categoryLabel } from "../lib/storage/summary.ts";
+import {
+  buildBoxDetail,
+  buildHomeBoxes,
+  buildOverview,
+  categoryLabel,
+  compartmentColumns,
+  type RawHomeBox,
+} from "../lib/storage/summary.ts";
 import type { BoxRow, CompartmentRow, LocationRow, PackRow } from "../lib/storage/types.ts";
 
 const pack = (id: string, compartment_id: string, categoryName: string | null, name = "X"): PackRow => ({
@@ -95,4 +102,57 @@ test("box detail: empty box", () => {
   assert.equal(d.selectedId, null);
   assert.equal(d.selectedCode, null);
   assert.equal(d.categories, "Пока пусто");
+});
+
+test("compartmentColumns: one column per compartment, at most four", () => {
+  assert.equal(compartmentColumns(0), 1);
+  assert.equal(compartmentColumns(1), 1);
+  assert.equal(compartmentColumns(2), 2);
+  assert.equal(compartmentColumns(3), 3);
+  assert.equal(compartmentColumns(4), 4);
+  assert.equal(compartmentColumns(5), 4);
+  assert.equal(compartmentColumns(12), 4);
+});
+
+const homeBox = (
+  id: string,
+  name: string,
+  number: string | null,
+  zone: { name: string; sort_order: number } | null,
+  packsPerCompartment: number[],
+): RawHomeBox => ({
+  id,
+  name,
+  number,
+  color: null,
+  locations: zone,
+  compartments: packsPerCompartment.map((count) => ({ packs: [{ count }] })),
+});
+
+test("buildHomeBoxes: by zone order, then number (natural), then name; counts summed", () => {
+  const quick = { name: "Быстрый доступ", sort_order: 1 };
+  const main = { name: "Основной склад", sort_order: 2 };
+  const trip = { name: "В дорогу", sort_order: 3 };
+  const rows = [
+    homeBox("t", "Дорожная", "1", trip, [1]),
+    homeBox("m10", "Склад десять", "10", main, [0, 0]),
+    homeBox("m2", "Склад два", "2", main, [2, 3]),
+    homeBox("q", "Аптечка", "1", quick, [4]),
+    homeBox("lost", "Без зоны", "1", null, [7]),
+  ];
+  const result = buildHomeBoxes(rows);
+  assert.deepEqual(result.map((b) => b.id), ["q", "m2", "m10", "t", "lost"]);
+  assert.deepEqual(result.map((b) => b.packCount), [4, 5, 0, 1, 7]);
+  assert.equal(result[0]?.zoneName, "Быстрый доступ");
+  assert.equal(result[4]?.zoneName, "");
+});
+
+test("buildHomeBoxes: a box with no compartments has no packs; empty input is empty", () => {
+  const rows: RawHomeBox[] = [
+    { id: "a", name: "A", number: null, color: null, locations: null, compartments: [] },
+    { id: "b", name: "B", number: null, color: null, locations: null, compartments: null },
+    { id: "c", name: "C", number: null, color: null, locations: null, compartments: [{ packs: null }] },
+  ];
+  assert.deepEqual(buildHomeBoxes(rows).map((b) => b.packCount), [0, 0, 0]);
+  assert.deepEqual(buildHomeBoxes([]), []);
 });

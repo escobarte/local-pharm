@@ -7,17 +7,15 @@ import type { CatalogMedication } from "@/lib/medications/types";
 import { ExpiryBadge, LowStockBadge } from "./Badge";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DesktopSelectLink } from "./DesktopSelectLink";
-import { IconPill } from "./icons";
+import { IconArrowRight, IconPill, IconPlus } from "./icons";
 import { PackActions } from "./PackActions";
-import { dangerOutlineButtonClass, primaryButtonClass, sectionTitleClass } from "./ui";
+import { addButtonClass, dangerTextButtonClass, navLinkClass, sectionTitleClass, textButtonClass } from "./ui";
 
 // Building blocks of the medication card. They are shared by the full page
 // (/medications/[id]) and by the desktop panel of the search results, so the
 // packs, the quick actions and the dialogs exist in one place only.
 
 const tagClass = "rounded-tag bg-tint px-2.5 py-1.5 text-xs font-semibold text-navy";
-const linkButton =
-  "flex min-h-11 flex-1 items-center justify-center rounded-field text-[13px] font-semibold no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 
 type Med = CatalogMedication;
 
@@ -95,9 +93,10 @@ export function PackList({ med, titleId }: { med: Med; titleId: string }) {
                     <DesktopSelectLink
                       href={`/storage/${pack.place.boxId}?cell=${pack.place.compartmentId}`}
                       desktopHref={`/storage?box=${pack.place.boxId}&cell=${pack.place.compartmentId}`}
-                      className="-my-1 flex min-h-11 flex-none items-center px-1 text-[13px] font-semibold text-navy underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+                      className={`${navLinkClass} -my-2.5 flex-none`}
                     >
                       Открыть
+                      <IconArrowRight size={16} strokeWidth={2} />
                     </DesktopSelectLink>
                   ) : null}
                 </div>
@@ -137,13 +136,13 @@ export function PackList({ med, titleId }: { med: Med; titleId: string }) {
                 <div className="flex gap-2 border-t border-tint pt-2">
                   <Link
                     href={`/medications/${med.id}/pack/${pack.id}/move`}
-                    className={`${linkButton} text-navy hover:bg-tint`}
+                    className={`${textButtonClass} flex-1`}
                   >
                     Переложить
                   </Link>
                   <ConfirmDialog
                     triggerLabel="Удалить упаковку"
-                    triggerClassName={`${linkButton} text-danger-fg hover:bg-danger-bg`}
+                    triggerClassName={`${dangerTextButtonClass} flex-1`}
                     title="Удалить упаковку?"
                     description={`${title}, ${pcsLabel(pack.quantity)} — будет удалена из базы, отменить нельзя. Препарат останется.`}
                     confirmLabel="Удалить упаковку"
@@ -177,13 +176,14 @@ export function Indications({ med, titleId, className = "" }: { med: Med; titleI
 export function MedicationActions({ med }: { med: Med }) {
   return (
     <div className="flex flex-col gap-2">
-      <Link href={`/medications/${med.id}/pack/new`} className={`${primaryButtonClass} no-underline`}>
+      <Link href={`/medications/${med.id}/pack/new`} className={addButtonClass}>
+        <IconPlus size={20} strokeWidth={2.2} />
         Добавить упаковку
       </Link>
       {med.packs.length === 0 ? (
         <ConfirmDialog
           triggerLabel="Удалить препарат"
-          triggerClassName={`${dangerOutlineButtonClass} w-full`}
+          triggerClassName={`${dangerTextButtonClass} w-full`}
           title={`Удалить «${med.name}»?`}
           description="Препарат исчезнет из базы и поиска. Это нельзя отменить."
           confirmLabel="Удалить препарат"

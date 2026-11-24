@@ -1,7 +1,7 @@
 import { formatExpiry } from "@/lib/dates";
 import { morePlacesLabel, packsShort, pcsLabel } from "@/lib/format";
 import { placeLabel, sourceName, type SearchResult } from "@/lib/medications/search";
-import { ExpiryBadge, LowStockBadge } from "./Badge";
+import { CountChip, ExpiryChip, LowStockBadge, QuantityChip } from "./Badge";
 import { DesktopSelectLink } from "./DesktopSelectLink";
 import { IconPill, IconStorage } from "./icons";
 import { sourceTagClass } from "./ui";
@@ -13,22 +13,12 @@ type Props = SearchResult & {
 };
 
 /**
- * One search result: name, substance, badges, place, expiry and quantity.
+ * One search result: bold name, substance, place, then quantity / expiry chips.
  * Mobile: opens the medication page. Desktop (lg): selects it in the panel.
  */
 export function MedicationCard({ med, summary, selectHref, selected }: Props) {
   const sub = [med.activeIngredient, med.form, med.dosage].filter(Boolean).join(" · ");
-  const meta = [
-    summary.packCount === 0
-      ? null
-      : summary.nearestExpiry
-        ? `до ${formatExpiry(summary.nearestExpiry)}`
-        : "срок не указан",
-    summary.packCount === 0 ? null : pcsLabel(summary.totalQuantity),
-    summary.packCount > 1 ? packsShort(summary.packCount) : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const hasPacks = summary.packCount > 0;
 
   return (
     <li>
@@ -43,16 +33,13 @@ export function MedicationCard({ med, summary, selectHref, selected }: Props) {
             <IconPill size={20} />
           </span>
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span className="text-base leading-snug font-semibold break-words">{med.name}</span>
+            <span className="text-base leading-snug font-bold break-words">{med.name}</span>
             {sub ? <span className="text-[13px] leading-snug text-muted">{sub}</span> : null}
           </span>
-          <span className="flex flex-none flex-col items-end gap-1">
-            <ExpiryBadge status={summary.status} />
-            {summary.lowStock ? <LowStockBadge /> : null}
-          </span>
+          {summary.lowStock ? <LowStockBadge /> : null}
         </span>
-        <span className="flex items-start gap-2 text-[13px] leading-snug">
-          <IconStorage size={16} className="mt-0.5 flex-none text-muted" />
+        <span className="flex items-start gap-2 text-sm leading-snug">
+          <IconStorage size={16} className="mt-0.5 flex-none text-navy" />
           {summary.place ? (
             <span className="font-semibold break-words">
               {placeLabel(summary.place)}
@@ -65,7 +52,18 @@ export function MedicationCard({ med, summary, selectHref, selected }: Props) {
           )}
         </span>
         <span className="flex items-center justify-between gap-2">
-          <span className="text-[13px] text-muted">{meta}</span>
+          <span className="flex flex-wrap items-center gap-1.5">
+            {hasPacks ? (
+              <>
+                <QuantityChip text={pcsLabel(summary.totalQuantity)} />
+                <ExpiryChip
+                  text={summary.nearestExpiry ? `до ${formatExpiry(summary.nearestExpiry)}` : ""}
+                  status={summary.status}
+                />
+                {summary.packCount > 1 ? <CountChip text={packsShort(summary.packCount)} /> : null}
+              </>
+            ) : null}
+          </span>
           <span className={sourceTagClass}>{sourceName(med.source)}</span>
         </span>
       </DesktopSelectLink>

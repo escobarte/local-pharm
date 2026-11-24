@@ -7,23 +7,53 @@ const focusRing =
 export const inputClass =
   `min-h-12 w-full rounded-field border border-border bg-surface px-3.5 text-[15px] font-normal text-navy placeholder:text-muted disabled:bg-tint disabled:text-muted ${focusRing}`;
 
-export const primaryButtonClass =
-  `flex min-h-13 items-center justify-center rounded-button bg-navy px-4 text-[15px] font-semibold text-white hover:bg-navy/90 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
+// ---- Buttons (docs/BRAND.md, section "Кнопки") ----
+// Roles: add (accent) · primary (navy, one per block) · secondary (border) ·
+// warn (toggled "Заканчивается") · text (tertiary) · danger (red text, no fill) ·
+// nav link (text + arrow). Sizes: default min-h-13 (52 px), `Sm` min-h-11 (44 px).
+// Width is never part of these strings (see GOTCHAS: w-full vs w-auto).
 
-export const secondaryButtonClass =
-  `flex min-h-13 items-center justify-center rounded-button border border-border bg-surface px-4 text-[15px] font-semibold text-navy hover:bg-tint disabled:cursor-not-allowed disabled:text-muted ${focusRing}`;
+const buttonBase = `flex items-center justify-center gap-2 rounded-button px-4 text-[15px] font-semibold no-underline disabled:cursor-not-allowed ${focusRing}`;
+// Text buttons (tertiary, danger) are quieter: smaller type, tighter padding, field radius.
+const textBase = `flex min-h-11 items-center justify-center gap-2 rounded-field px-2 text-[13px] font-semibold no-underline disabled:cursor-not-allowed ${focusRing}`;
+const sizeMd = "min-h-13";
+const sizeSm = "min-h-11 text-sm";
 
-export const dangerButtonClass =
-  `flex min-h-13 items-center justify-center rounded-button bg-danger-fg px-4 text-[15px] font-semibold text-white hover:bg-danger-fg/90 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
+const addTone = "bg-accent text-navy hover:bg-accent/85 disabled:opacity-60";
+const primaryTone = "bg-navy text-white hover:bg-navy/90 disabled:opacity-60";
+const secondaryTone =
+  "border border-border bg-surface text-navy hover:bg-tint disabled:text-muted";
+const warnTone =
+  "border border-warn-fg bg-warn-bg text-warn-fg hover:bg-warn-bg/70 disabled:opacity-60";
+const textTone = "text-navy hover:bg-tint disabled:text-muted";
+const dangerTextTone = "text-danger-fg hover:bg-danger-bg disabled:opacity-60";
 
-export const dangerOutlineButtonClass =
-  `flex min-h-13 items-center justify-center rounded-button border border-danger-fg bg-surface px-4 text-[15px] font-semibold text-danger-fg hover:bg-danger-bg ${focusRing}`;
+/** Adding and creating: "Добавить…", "Новая коробка", "+ Отсек", "Сохранить" in add forms. */
+export const addButtonClass = `${buttonBase} ${sizeMd} ${addTone}`;
+export const addButtonSmClass = `${buttonBase} ${sizeSm} ${addTone}`;
 
-export const warnButtonClass =
-  `flex min-h-13 items-center justify-center rounded-button border border-warn-fg bg-warn-bg px-4 text-[15px] font-semibold text-warn-fg hover:bg-warn-bg/70 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`;
+/** The main action over a pack ("Взял 1 шт."). At most one per block. */
+export const primaryButtonClass = `${buttonBase} ${sizeMd} ${primaryTone}`;
+export const primaryButtonSmClass = `${buttonBase} ${sizeSm} ${primaryTone}`;
 
-export const dashedButtonClass =
-  `flex min-h-13 items-center justify-center gap-2 rounded-button border border-dashed border-muted bg-transparent px-4 text-sm font-semibold text-navy hover:bg-tint ${focusRing}`;
+/** Secondary: white with a border ("Печать QR", "Сканировать QR", "Отмена"). */
+export const secondaryButtonClass = `${buttonBase} ${sizeMd} ${secondaryTone}`;
+export const secondaryButtonSmClass = `${buttonBase} ${sizeSm} ${secondaryTone}`;
+
+/** "Заканчивается ✓": the toggle in its switched-on state. */
+export const warnButtonSmClass = `${buttonBase} ${sizeSm} ${warnTone}`;
+
+/** Tertiary text button ("Переложить"). */
+export const textButtonClass = `${textBase} ${textTone}`;
+
+/** Dangerous action that opens a confirmation: red text, no fill. */
+export const dangerTextButtonClass = `${textBase} ${dangerTextTone}`;
+
+/** Filled red: only the final "yes, delete" inside a confirmation dialog. */
+export const dangerButtonClass = `${buttonBase} ${sizeMd} bg-danger-fg text-white hover:bg-danger-fg/90 disabled:opacity-60`;
+
+/** Navigation ("Открыть", "Открыть карточку"): a text link with an arrow icon, not a button. */
+export const navLinkClass = `-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-field px-2 text-[13px] font-semibold text-navy no-underline hover:bg-tint ${focusRing}`;
 
 export const sectionTitleClass =
   "text-xs font-semibold tracking-[0.8px] text-muted uppercase";
@@ -48,5 +78,11 @@ export const successBoxClass =
 export const formFooterClass =
   "sticky bottom-0 border-t border-tint bg-surface px-5 pt-3 pb-6 lg:static lg:flex lg:justify-end lg:border-0 lg:bg-transparent lg:px-0 lg:pt-5 lg:pb-0";
 
-/** Submit button inside `formFooterClass`: natural width on desktop. */
-export const formSubmitClass = `${primaryButtonClass} lg:min-w-56 lg:px-10`;
+/** Submit button inside `formFooterClass`: accent, natural width on desktop. */
+export const formSubmitClass = `${addButtonClass} w-full lg:w-auto lg:min-w-56 lg:px-10`;
+
+/** Same footer button for a form whose main action is not "adding" (e.g. "Переложить"). */
+export const formPrimarySubmitClass = `${primaryButtonClass} w-full lg:w-auto lg:min-w-56 lg:px-10`;
+
+/** Quiet "Удалить …" link at the bottom of a block: red text, no fill, opens a confirmation. */
+export const dangerLinkClass = `-mx-2 inline-flex min-h-11 items-center self-start rounded-field px-2 text-[13px] font-semibold text-danger-fg underline hover:bg-danger-bg ${focusRing}`;

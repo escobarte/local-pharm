@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { PackForm } from "@/components/PackForm";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { primaryButtonClass } from "@/components/ui";
+import { IconPlus } from "@/components/icons";
+import { addButtonClass } from "@/components/ui";
 import { createPack } from "@/lib/medications/actions";
 import { getMedication } from "@/lib/medications/queries";
 import { sortPacks } from "@/lib/medications/search";
@@ -51,7 +52,8 @@ export default async function NewPackPage({ params, searchParams }: Props) {
           <p className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">
             Сначала создайте коробку и отсек, куда положить упаковку.
           </p>
-          <Link href="/storage/new" className={`${primaryButtonClass} no-underline`}>
+          <Link href="/storage/new" className={addButtonClass}>
+            <IconPlus size={20} strokeWidth={2.2} />
             Создать коробку
           </Link>
         </main>
