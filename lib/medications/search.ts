@@ -130,7 +130,7 @@ export function summarize(med: CatalogMedication, today: IsoDate): MedicationSum
 }
 
 /** "№1 Аптечка · B2" — the box (with its number when it has one) and the compartment. */
-export function placeLabel(place: PackPlace): string {
+export function placeLabel(place: Pick<PackPlace, "boxName" | "boxNumber" | "code">): string {
   const box = place.boxNumber ? `№${place.boxNumber} ${place.boxName}` : place.boxName;
   return `${box} · ${place.code}`;
 }

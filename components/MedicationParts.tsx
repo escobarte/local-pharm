@@ -62,7 +62,16 @@ export function MedicationHead({
 }
 
 /** Packs at home with place, quantity, expiry and every pack action. */
-export function PackList({ med, titleId }: { med: Med; titleId: string }) {
+export function PackList({
+  med,
+  titleId,
+  inShoppingList = false,
+}: {
+  med: Med;
+  titleId: string;
+  /** The medication already has an open shopping item ("В покупки" turns into "В списке"). */
+  inShoppingList?: boolean;
+}) {
   const today = todayIso();
   const packs = sortPacks(med.packs);
 
@@ -131,6 +140,8 @@ export function PackList({ med, titleId }: { med: Med; titleId: string }) {
                   packId={pack.id}
                   quantity={pack.quantity}
                   lowStock={pack.running_low}
+                  medicationId={med.id}
+                  inShoppingList={inShoppingList}
                 />
 
                 <div className="flex gap-2 border-t border-tint pt-2">

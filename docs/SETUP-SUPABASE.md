@@ -92,6 +92,62 @@
 
 Переменные окружения для Фазы 4b добавлять **не нужно**: openFDA работает без ключа. `OPENFDA_API_URL` из `.env.example` — только для локальных тестов, в Vercel её не задавать.
 
+### 1.5. Миграция 0006 (Фаза 6: покупки, счётчики меню, письмо о сроках)
+
+Выполняется **после** 0005 и **до** деплоя Фазы 6.
+
+1. SQL Editor → New query → вставить **целиком** `supabase/migrations/0006_shopping.sql` → **Run**.
+2. Что она делает:
+   - таблица `public.shopping_items` (общий список покупок): RLS через `is_allowed()`, явные `GRANT select, insert, update, delete` только для `authenticated`, ничего для `anon`; один **незакрытый** пункт на препарат (частичный уникальный индекс), кто и когда добавил/купил проставляет триггер из JWT;
+   - функция `public.nav_counts(date)` — два числа для значков в меню (открытые покупки, просроченные + истекающие в 30 дней);
+   - **приватная** таблица `public.digest_config` (одна строка: секрет письма и дата последней отправки; RLS включена, политик и прав для API нет) и три функции для cron: `weekly_expiry_digest`, `digest_last_sent`, `digest_mark_sent` (`security definer`, `search_path = ''`, `EXECUTE` только у `anon`; без верного секрета возвращают пусто).
+3. **Положить секрет письма в базу** (один раз; значение — **та же строка, что `CRON_SECRET` в Vercel**, в репозиторий оно не попадает). В SQL Editor, подставив своё значение вместо `<CRON_SECRET>`:
+
+   ```sql
+   update public.digest_config set secret = '<CRON_SECRET>' where id;
+   ```
+
+   Повторный запуск 0006 секрет и отметку «письмо отправлено» **не стирает**. Сменили `CRON_SECRET` в Vercel — повторите `update` с новым значением.
+4. Проверка:
+
+   ```sql
+   select has_table_privilege('anon', 'public.shopping_items', 'select');                  -- false
+   select has_table_privilege('authenticated', 'public.shopping_items', 'select');         -- true
+   select has_table_privilege('authenticated', 'public.digest_config', 'select');          -- false
+   select has_table_privilege('anon', 'public.digest_config', 'select');                   -- false
+   select has_function_privilege('anon', 'public.weekly_expiry_digest(text,integer)', 'execute');          -- true
+   select has_function_privilege('authenticated', 'public.weekly_expiry_digest(text,integer)', 'execute'); -- false
+   select (secret is not null and secret <> '') as secret_set from public.digest_config;                   -- true после шага 3
+   ```
+
+Файл безопасно запускать повторно. Без неё «Сроки годности» открываются, но кнопка «В покупки» ответит «База данных ещё не обновлена», «Покупки» покажут ошибку, значков в меню не будет, а письмо не уйдёт.
+
+### 1.6. Еженедельное письмо о сроках (Resend)
+
+Письмо отправляет тот же cron `/api/cron/keepalive` (раз в сутки, 06:00 UTC) — **по понедельникам**, после проверки базы. Второго cron нет. Если просроченного и истекающего в 30 дней нет, письмо не уходит. В тот же день второе письмо не уйдёт (отметка в `digest_config`).
+
+1. Зарегистрироваться на resend.com → **API Keys** → Create API Key (права *Sending access*) → скопировать ключ (`re_...`). Показывается один раз.
+2. **Адрес отправителя `MAIL_FROM`.**
+   - **Без своего домена** Resend разрешает отправку только с `onboarding@resend.dev` и **только на адрес владельца аккаунта Resend** (тот, на который зарегистрирован Resend). Тогда: `MAIL_FROM` = `Local Pharm <onboarding@resend.dev>`, `NOTIFY_EMAILS` = этот один адрес. Письмо на любой другой адрес Resend отклонит (в логе cron: `HTTP 403 ... testing emails to your own email address`).
+   - **Чтобы писать нескольким людям**, нужен свой домен: Resend → Domains → Add Domain → добавить DNS-записи → дождаться *Verified*, затем `MAIL_FROM` = `Local Pharm <pharm@<ВАШ_ДОМЕН>>`.
+3. Vercel → Settings → Environment Variables (Production):
+
+   | Имя | Значение |
+   |---|---|
+   | `RESEND_API_KEY` | ключ из шага 1 |
+   | `MAIL_FROM` | `Local Pharm <onboarding@resend.dev>` или адрес на вашем домене |
+   | `NOTIFY_EMAILS` | адреса через запятую, до 10 (без домена — один, владельца Resend) |
+
+   Необязательная `NEXT_PUBLIC_SITE_URL` задаёт адрес в ссылке письма; не задана — берётся адрес, на который пришёл запрос cron.
+4. **Redeploy** (Deployments → последний деплой → Redeploy). Секрет в БД (шаг 1.5.3) должен совпадать с `CRON_SECRET`.
+5. **Проверка без ожидания понедельника.** Cron Jobs → **Run** по понедельникам отправит письмо, в другие дни ответит `{"ok":true,"digest":"skipped"}`. Проверить в любой день можно запросом с параметром `force=1` (работает только с верным `CRON_SECRET`; не помечает неделю отправленной):
+
+   ```bash
+   curl -H "Authorization: Bearer <CRON_SECRET>" "https://<PROJECT>.vercel.app/api/cron/keepalive?force=1"
+   ```
+
+   Ответ `{"ok":true,"digest":"sent"}` — письмо ушло; `"skipped"` — причина в логах Vercel (Logs → фильтр `digest:`): `not_configured (set: …)` — не заданы перечисленные переменные; `nothing_to_report` — нет просроченного и истекающего в 30 дней **или** секрет в БД не совпадает с `CRON_SECRET` (функции при неверном секрете молчат); `not_monday` / `already_sent` — при `force=1` не бывают. `502 digest_failed` — Resend отказал, причина в логе (`HTTP 403` и т. п.).
+
 ## 2. Белый список
 
 В SQL Editor выполнить для **каждого** из двух аккаунтов:
@@ -140,7 +196,15 @@ Vercel → Project → **Settings → Environment Variables** (окружени�
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Адрес, который печатается в QR-наклейках, например `https://<PROJECT>.vercel.app`. Не задана — в QR попадает адрес, с которого открыта страница печати. Задать, если у приложения несколько адресов (свой домен, preview) и наклейки всегда должны вести на один |
 
-**Secret key / service_role key никуда не вносить**: приложение его не использует.
+Необязательные (Фаза 6, письмо о сроках; все три или ни одной, подробно — шаг 1.6):
+
+| Имя | Зачем |
+|---|---|
+| `RESEND_API_KEY` | Ключ Resend (`re_...`) |
+| `MAIL_FROM` | Отправитель: `Local Pharm <onboarding@resend.dev>` или адрес на своём подтверждённом домене |
+| `NOTIFY_EMAILS` | Кому слать, через запятую (до 10). Без своего домена Resend доставит только владельцу аккаунта Resend |
+
+**Secret key / service_role key никуда не вносить**: приложение его не использует. Письмо читает данные через функции с секретом (шаг 1.5), а не через service_role.
 
 После добавления: Deployments → последний деплой → **Redeploy**. `NEXT_PUBLIC_*` зашиваются при сборке, простой Restart не поможет.
 
@@ -163,7 +227,8 @@ Vercel → Project → **Settings → Environment Variables** (окружени�
 6. Фаза 2: «Хранение» → «Новая коробка» → создать → добавить отсек → «Добавить сюда» → сохранить препарат. Он должен появиться в списке отсека с количеством и сроком.
    Фаза 5: «Хранение» → «Печать наклеек» → «Печать» (A4, масштаб 100 %). Навести камеру телефона на наклейку — откроется коробка; без входа — сначала «Вход», после него та же коробка.
    Фаза 3: на главной найти препарат через поиск (регистр не важен), открыть карточку, нажать «Взял 1 шт.» (количество уменьшилось), «Заканчивается» (появился бейдж «Мало», счётчик на главной вырос), «Переложить» в другой отсек, «Удалить упаковку».
-7. Cron: Vercel → Project → **Settings → Cron Jobs**: виден `/api/cron/keepalive`, расписание `0 6 * * *` (раз в сутки, UTC). Кнопка **Run** → в логах ответ `200 {"ok":true}`.
+7. Фаза 6: «Сроки» — группы «Просрочено», «Истекает в 30 дней», «В ближайшие 90 дней»; «В покупки» → кнопка становится «В списке»; «Покупки» — добавить вручную, отметить купленным (переходит в «Куплено» с именем и датой), «Разложить» ведёт на добавление упаковки. В меню у «Сроки» и «Покупки» значки с числами. Письмо — шаг 1.6.
+8. Cron: Vercel → Project → **Settings → Cron Jobs**: виден `/api/cron/keepalive`, расписание `0 6 * * *` (раз в сутки, UTC). Кнопка **Run** → в логах ответ `200 {"ok":true}`.
 
 ## 7. Реестр AMDM: загрузка и обновление
 
@@ -249,4 +314,8 @@ select name, source, registry_code, barcode from public.medications where source
 | QR-наклейка ведёт на старый адрес | В QR зашит адрес, с которого печатали. После смены домена — перепечатать (или задать `NEXT_PUBLIC_SITE_URL` и Redeploy перед печатью) |
 | Лист наклеек печатается мельче или со сдвигом | В окне печати масштаб не 100 % («По размеру страницы») или выбран не A4 |
 | Cron отвечает 401 | `CRON_SECRET` не задан в Vercel или задан после деплоя без Redeploy |
-| Cron отвечает 502 | Supabase недоступен / проект на паузе / миграция не применена (нет `ping`) |
+| Cron отвечает 502 `ping_failed` | Supabase недоступен / проект на паузе / миграция не применена (нет `ping`) |
+| Cron отвечает 502 `digest_failed` | Ping прошёл, письмо — нет. Причина в логе: `HTTP 403 … your own email address` — адрес не владельца Resend (нужен свой домен, шаг 1.6); `HTTP 401` — неверный `RESEND_API_KEY`; `weekly_expiry_digest` — не применена 0006 |
+| Письма нет, в логе `digest: skipped, not_configured (set: …)` | Не заданы перечисленные переменные (шаг 1.6) или после их добавления не было Redeploy |
+| Письма нет, в логе `nothing_to_report`, хотя просроченное есть | Секрет в `public.digest_config` не совпадает с `CRON_SECRET` (шаг 1.5.3) |
+| «В покупки»: «База данных ещё не обновлена»; в меню нет значков | Не применена миграция 0006 (шаг 1.5) |

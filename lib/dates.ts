@@ -87,6 +87,17 @@ function dayNumber(iso: IsoDate): number {
   return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
 }
 
+/** Whole days from `today` to `expiry` (negative = already past). Both are "YYYY-MM-DD". */
+export function daysUntil(expiry: IsoDate, today: IsoDate): number {
+  return dayNumber(expiry) - dayNumber(today);
+}
+
+/** "2026-11-24" + 30 → "2026-12-24". Calendar arithmetic in UTC, no timezone drift. */
+export function addDays(iso: IsoDate, days: number): IsoDate {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
 /** "soon" = expires within 30 days (inclusive), matching the BRAND "warn" state. */
 export function expiryStatus(expiry: IsoDate | null | undefined, today: IsoDate): ExpiryStatus {
   if (!expiry) return "none";

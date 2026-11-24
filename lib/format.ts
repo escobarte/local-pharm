@@ -61,3 +61,6 @@ export const lowStockText = (n: number) =>
 
 /** "ещё 1 место" / "ещё 2 места" / "ещё 5 мест". */
 export const morePlacesLabel = (n: number) => `ещё ${n} ${plural(n, "место", "места", "мест")}`;
+
+/** Shopping list: "1 позиция" / "4 позиции" / "5 позиций". */
+export const positionsLabel = (n: number) => `${n} ${plural(n, "позиция", "позиции", "позиций")}`;

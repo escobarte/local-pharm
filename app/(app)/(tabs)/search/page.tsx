@@ -11,6 +11,7 @@ import { todayIso } from "@/lib/dates";
 import { foundLabel } from "@/lib/format";
 import { getCatalog } from "@/lib/medications/queries";
 import { parseSearchParams, runSearch, searchHref, type AttentionFilter } from "@/lib/medications/search";
+import { isMedicationInShoppingList } from "@/lib/shopping/queries";
 import { getCategories } from "@/lib/storage/queries";
 import { isUuid } from "@/lib/storage/validation";
 
@@ -49,6 +50,9 @@ export default async function SearchPage({ searchParams }: Props) {
   // The selection lives in the URL; on mobile it is ignored and a card opens the full page.
   const wanted = Array.isArray(rawParams.selected) ? rawParams.selected[0] : rawParams.selected;
   const selected = (isUuid(wanted) ? results.find((r) => r.med.id === wanted) : undefined) ?? results[0];
+  // The panel's "В покупки" shows "В списке" when the medication is already on the open list
+  // (before migration 0006 there is no list: no panel state, search still works).
+  const selectedInList = selected ? await isMedicationInShoppingList(selected.med.id).catch(() => false) : false;
   const baseHref = searchHref(params);
   const selectHref = (id: string) => `${baseHref}${baseHref.includes("?") ? "&" : "?"}selected=${id}`;
 
@@ -146,7 +150,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 className="hidden flex-col gap-5 rounded-card border border-border bg-surface p-5 xl:p-6 lg:sticky lg:top-8 lg:flex lg:max-h-[calc(100dvh-4rem)] lg:overflow-y-auto"
               >
                 <MedicationHead med={selected.med} as="h2" />
-                <PackList med={selected.med} titleId="panel-packs-title" />
+                <PackList med={selected.med} titleId="panel-packs-title" inShoppingList={selectedInList} />
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <Link href={`/medications/${selected.med.id}`} className={navLinkClass}>
                     Открыть карточку

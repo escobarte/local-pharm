@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconPlus } from "./icons";
-import { NAV_ITEMS, isNavActive } from "./nav";
+import { badgeText } from "@/lib/shopping/logic";
+import { NAV_ITEMS, isNavActive, type NavCounts } from "./nav";
 
 /** Mobile menu. From lg (1024 px) the side menu replaces it (components/SideNav.tsx). */
-export function BottomNav() {
+export function BottomNav({ counts }: { counts?: NavCounts | null }) {
   const pathname = usePathname();
 
   return (
@@ -17,6 +18,7 @@ export function BottomNav() {
       <ul className="mx-auto flex max-w-md items-end px-2 pt-2">
         {NAV_ITEMS.map((item) => {
           const active = isNavActive(pathname, item.href);
+          const badge = item.badge ? badgeText(counts?.[item.badge]) : null;
           if (item.primary) {
             return (
               <li key={item.href} className="flex flex-1 justify-center">
@@ -40,8 +42,19 @@ export function BottomNav() {
                   active ? "font-semibold text-navy" : "font-medium text-muted"
                 }`}
               >
-                <item.Icon />
+                <span className="relative">
+                  <item.Icon />
+                  {badge ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-1 left-[calc(100%-10px)] flex h-4 min-w-4 items-center justify-center rounded-full bg-navy px-1 text-[10px] leading-none font-bold text-white"
+                    >
+                      {badge}
+                    </span>
+                  ) : null}
+                </span>
                 {item.label}
+                {badge ? <span className="sr-only">, {badge}</span> : null}
               </Link>
             </li>
           );

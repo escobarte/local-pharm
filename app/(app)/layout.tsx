@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { SideNav } from "@/components/SideNav";
+import { getNavCounts } from "@/lib/nav-counts";
 import { getAccess } from "@/lib/supabase/server";
 import { LOGIN_PATH, NOT_CONFIGURED_PATH } from "@/lib/routes";
 import { signOut } from "./actions";
@@ -18,9 +19,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (access.status === "no-session") redirect(LOGIN_PATH);
   if (access.status === "denied") redirect("/auth/denied");
 
+  const counts = await getNavCounts();
+
   return (
     <div className="lg:flex lg:min-h-dvh">
-      <SideNav email={access.email} signOutAction={signOut} />
+      <SideNav email={access.email} signOutAction={signOut} counts={counts} />
       <div className="min-w-0 lg:flex-1">{children}</div>
     </div>
   );

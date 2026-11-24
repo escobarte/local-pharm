@@ -86,3 +86,6 @@ export const formPrimarySubmitClass = `${primaryButtonClass} w-full lg:w-auto lg
 
 /** Quiet "Удалить …" link at the bottom of a block: red text, no fill, opens a confirmation. */
 export const dangerLinkClass = `-mx-2 inline-flex min-h-11 items-center self-start rounded-field px-2 text-[13px] font-semibold text-danger-fg underline hover:bg-danger-bg ${focusRing}`;
+
+/** Icon-only "remove from the list" button (shopping list rows): quiet, turns red on hover. */
+export const removeIconButtonClass = `flex size-11 flex-none items-center justify-center rounded-field text-muted hover:bg-danger-bg hover:text-danger-fg disabled:opacity-60 ${focusRing}`;

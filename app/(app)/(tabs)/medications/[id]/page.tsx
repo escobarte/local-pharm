@@ -5,6 +5,7 @@ import { Indications, MedicationActions, MedicationHead, PackList } from "@/comp
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { getMedication } from "@/lib/medications/queries";
+import { isMedicationInShoppingList } from "@/lib/shopping/queries";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -14,6 +15,8 @@ export default async function MedicationPage({ params }: Props) {
   const { id } = await params;
   const med = await getMedication(id);
   if (!med) notFound();
+  // Before migration 0006 is applied the list does not exist: the card must still open.
+  const inShoppingList = await isMedicationInShoppingList(med.id).catch(() => false);
 
   return (
     <Page>
@@ -34,7 +37,7 @@ export default async function MedicationPage({ params }: Props) {
             <Indications med={med} titleId="indications-desktop" />
           </div>
           <div className="flex flex-col gap-5">
-            <PackList med={med} titleId="packs-title" />
+            <PackList med={med} titleId="packs-title" inShoppingList={inShoppingList} />
             <Indications med={med} titleId="indications-title" className="lg:hidden" />
             <MedicationActions med={med} />
           </div>

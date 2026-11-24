@@ -3,14 +3,22 @@
 import { useActionState } from "react";
 import { setLowStock, takeOne } from "@/lib/medications/actions";
 import { initialActionState, type ActionState } from "@/lib/storage/action-state";
+import { AddToShoppingButton } from "./AddToShoppingButton";
 import { IconCheck } from "./icons";
 import { SubmitButton } from "./SubmitButton";
 import { errorBoxClass, primaryButtonSmClass, secondaryButtonSmClass, warnButtonSmClass } from "./ui";
 
-type Props = { packId: string; quantity: number; lowStock: boolean };
+type Props = {
+  packId: string;
+  quantity: number;
+  lowStock: boolean;
+  medicationId: string;
+  /** The medication already has an open shopping item. */
+  inShoppingList: boolean;
+};
 
 /** "Взял 1 шт." and "Заканчивается" for one pack. Both are Server Actions. */
-export function PackActions({ packId, quantity, lowStock }: Props) {
+export function PackActions({ packId, quantity, lowStock, medicationId, inShoppingList }: Props) {
   const [takeState, takeAction] = useActionState<ActionState, FormData>(takeOne, initialActionState);
   const [lowState, lowAction] = useActionState<ActionState, FormData>(
     setLowStock,
@@ -51,6 +59,10 @@ export function PackActions({ packId, quantity, lowStock }: Props) {
           </SubmitButton>
         </form>
       </div>
+      {/* Marking "running low" never adds to the list by itself; this is the explicit step. */}
+      {lowStock ? (
+        <AddToShoppingButton medicationId={medicationId} reason="running_low" inList={inShoppingList} />
+      ) : null}
       {error ? (
         <p role="alert" className={errorBoxClass}>
           {error}

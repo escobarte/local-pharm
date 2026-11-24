@@ -54,3 +54,15 @@ export function parseMovePackInput(raw: RawInput): ParseResult<MovePackInput> {
 
   return finishParse(errors, { packId, medicationId, compartmentId });
 }
+
+/** Screens that may ask to be shown again after a pack is deleted (never a free-form URL). */
+const DELETE_PACK_RETURN_PATHS = ["/expiry"] as const;
+
+/**
+ * Where to go after "Удалить упаковку": back to the screen it was started from when
+ * that screen is on the short allowlist (the "Сроки" screen), otherwise the medication card.
+ */
+export function deletePackDestination(returnTo: string | null | undefined, medicationId: string): string {
+  const back = (DELETE_PACK_RETURN_PATHS as readonly string[]).find((p) => p === returnTo);
+  return back ?? `/medications/${medicationId}`;
+}

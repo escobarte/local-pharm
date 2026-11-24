@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconPill } from "./icons";
-import { NAV_ITEMS, isNavActive } from "./nav";
+import { badgeText } from "@/lib/shopping/logic";
+import { NAV_ITEMS, isNavActive, type NavCounts } from "./nav";
 
 type Props = {
   email: string;
   /** Server Action that ends the session on this device. */
   signOutAction: () => Promise<void>;
+  /** Badges for "Сроки" and "Покупки"; null = unknown (no badges). */
+  counts?: NavCounts | null;
 };
 
 const focus =
@@ -18,7 +21,7 @@ const focus =
  * Desktop menu (from lg, 1024 px), the only one of its kind: below lg it is
  * hidden and BottomNav takes over. The active section follows the route.
  */
-export function SideNav({ email, signOutAction }: Props) {
+export function SideNav({ email, signOutAction, counts }: Props) {
   const pathname = usePathname();
   const sections = NAV_ITEMS.filter((i) => !i.primary);
   const add = NAV_ITEMS.find((i) => i.primary);
@@ -40,6 +43,7 @@ export function SideNav({ email, signOutAction }: Props) {
         <ul className="flex flex-col gap-1">
           {sections.map((item) => {
             const active = isNavActive(pathname, item.href);
+            const badge = item.badge ? badgeText(counts?.[item.badge]) : null;
             return (
               <li key={item.href}>
                 <Link
@@ -53,6 +57,19 @@ export function SideNav({ email, signOutAction }: Props) {
                 >
                   <item.Icon size={20} />
                   {item.label}
+                  {badge ? (
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className={`ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs leading-none font-bold ${
+                          active ? "bg-navy text-white" : "bg-surface text-navy"
+                        }`}
+                      >
+                        {badge}
+                      </span>
+                      <span className="sr-only">, {badge}</span>
+                    </>
+                  ) : null}
                 </Link>
               </li>
             );

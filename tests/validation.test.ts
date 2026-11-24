@@ -242,3 +242,14 @@ test("parseMovePackInput", () => {
     assert.match(bad.errors.compartmentId, /Выберите/);
   }
 });
+
+test("deletePackDestination: stays on the 'Сроки' screen, otherwise the medication card", async () => {
+  const { deletePackDestination } = await import("../lib/medications/validation.ts");
+  const id = "3f2b8c1e-5a4d-4e6f-9a1b-0c2d3e4f5a6b";
+  assert.equal(deletePackDestination("/expiry", id), "/expiry");
+  assert.equal(deletePackDestination("", id), `/medications/${id}`);
+  assert.equal(deletePackDestination(null, id), `/medications/${id}`);
+  assert.equal(deletePackDestination("https://evil.example", id), `/medications/${id}`);
+  assert.equal(deletePackDestination("//evil.example", id), `/medications/${id}`);
+  assert.equal(deletePackDestination("/expiry/../admin", id), `/medications/${id}`);
+});

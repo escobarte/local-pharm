@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireClient, run, valuesOf } from "@/lib/action-utils";
 import type { ActionState } from "@/lib/storage/action-state";
 import { formDataToRaw, isUuid } from "@/lib/storage/validation";
-import { parseMovePackInput, parseNewPackInput } from "./validation";
+import { deletePackDestination, parseMovePackInput, parseNewPackInput } from "./validation";
 
 const PACK_GONE = "Упаковка не найдена: возможно, её уже удалили. Обновите страницу.";
 
@@ -70,7 +70,8 @@ export async function deletePack(_prev: ActionState, formData: FormData): Promis
   if (!res.ok) return { message: res.message };
 
   refreshAll();
-  redirect(`/medications/${medicationId}`);
+  // The "Сроки" screen asks to stay there (returnTo is checked against an allowlist).
+  redirect(deletePackDestination(String(formData.get("returnTo") ?? ""), medicationId));
 }
 
 export async function movePack(_prev: ActionState, formData: FormData): Promise<ActionState> {

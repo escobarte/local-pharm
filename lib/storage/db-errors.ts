@@ -33,7 +33,7 @@ export function describeDbError(error: DbErrorLike, context: DbErrorContext = "s
     return "Выбранная зона, категория или отсек больше не существует. Обновите страницу.";
   }
   // PostgREST: function / column not found → a migration was not applied yet.
-  if (["PGRST202", "PGRST204", "42703", "42883"].includes(code)) {
+  if (["PGRST202", "PGRST204", "PGRST205", "42703", "42883", "42P01"].includes(code)) {
     return "База данных ещё не обновлена. Владельцу нужно выполнить последнюю миграцию (docs/SETUP-SUPABASE.md).";
   }
   // add_registry_medication_with_pack (0004): the registry row is gone or not visible.

@@ -38,7 +38,7 @@ export default async function HomePage() {
       title: expiredText(counts.expired),
       emptyTitle: "",
       sub: "срок годности уже прошёл",
-      href: searchHref({ attention: "expired" }),
+      href: "/expiry",
       tone: "danger",
     });
   }
@@ -48,7 +48,7 @@ export default async function HomePage() {
     title: expiringText(counts.expiring),
     emptyTitle: "Ничего не истекает",
     sub: "в ближайшие 30 дней",
-    href: searchHref({ attention: "expiring" }),
+    href: "/expiry",
     tone: "warn",
   });
   rows.push({
