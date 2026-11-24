@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { IconPill } from "@/components/icons";
+import { FormIcon, formPlateClass } from "@/components/FormIcon";
 import { Indications, MedicationActions, MedicationHead, PackList } from "@/components/MedicationParts";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -30,9 +30,9 @@ export default async function MedicationPage({ params }: Props) {
           <div className="hidden lg:flex lg:flex-col lg:gap-5">
             <div
               aria-hidden="true"
-              className="flex h-55 items-center justify-center rounded-card bg-tint text-muted"
+              className={`${formPlateClass} h-55 rounded-card`}
             >
-              <IconPill size={56} />
+              <FormIcon form={med.form} size={56} />
             </div>
             <Indications med={med} titleId="indications-desktop" />
           </div>

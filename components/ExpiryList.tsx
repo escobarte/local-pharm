@@ -97,7 +97,7 @@ function ExpiryRow({
       <p className="text-base leading-snug font-bold break-words">{item.title}</p>
 
       <p className="flex items-start gap-2 text-[13px] leading-snug text-muted">
-        <IconStorage size={16} className="mt-px flex-none" />
+        <IconStorage size={16} className="mt-px flex-none text-box-icon" />
         <span className="break-words">{place}</span>
       </p>
 

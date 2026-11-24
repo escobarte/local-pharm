@@ -7,9 +7,17 @@ import type { CatalogMedication } from "@/lib/medications/types";
 import { ExpiryBadge, LowStockBadge } from "./Badge";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { DesktopSelectLink } from "./DesktopSelectLink";
-import { IconArrowRight, IconPill, IconPlus } from "./icons";
+import { FormIcon, formPlateClass } from "./FormIcon";
+import { IconArrowRight, IconPlus } from "./icons";
 import { PackActions } from "./PackActions";
-import { addButtonClass, dangerTextButtonClass, navLinkClass, sectionTitleClass, textButtonClass } from "./ui";
+import {
+  addButtonClass,
+  dangerTextButtonClass,
+  navLinkClass,
+  sectionTitleClass,
+  sourceTagClass,
+  textButtonClass,
+} from "./ui";
 
 // Building blocks of the medication card. They are shared by the full page
 // (/medications/[id]) and by the desktop panel of the search results, so the
@@ -30,14 +38,13 @@ export function MedicationHead({
   as?: "h1" | "h2";
   iconClassName?: string;
 }) {
-  const tags = [med.form, med.categoryName, sourceLabel(med.source)].filter(Boolean) as string[];
+  const tags = [med.form, med.categoryName].filter(Boolean) as string[];
+  const source = sourceLabel(med.source);
   return (
     <div className="flex flex-col gap-5">
       <header className="flex items-start gap-3.5">
-        <span
-          className={`flex size-14 flex-none items-center justify-center rounded-card bg-tint text-navy ${iconClassName}`}
-        >
-          <IconPill size={26} />
+        <span className={`${formPlateClass} size-14 rounded-card ${iconClassName}`}>
+          <FormIcon form={med.form} size={28} />
         </span>
         <div className="flex min-w-0 flex-col gap-1">
           <Heading className="text-2xl leading-tight font-bold break-words lg:text-[28px]">
@@ -56,6 +63,9 @@ export function MedicationHead({
             {t}
           </li>
         ))}
+        {source ? (
+          <li className={`${sourceTagClass} px-2.5 py-1.5 text-xs leading-normal`}>{source}</li>
+        ) : null}
       </ul>
     </div>
   );

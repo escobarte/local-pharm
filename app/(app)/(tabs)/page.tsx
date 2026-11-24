@@ -7,27 +7,30 @@ import { SearchBox } from "@/components/SearchBox";
 import { addButtonClass, sectionTitleClass, secondaryButtonClass } from "@/components/ui";
 import { todayIso } from "@/lib/dates";
 import { expiredText, expiringText, lowStockText } from "@/lib/format";
-import { getAttentionPacks } from "@/lib/medications/queries";
+import { categoryAria, categoryCount, countByCategory } from "@/lib/medications/category-counts";
+import { getAttentionPacks, getCategoryRows } from "@/lib/medications/queries";
 import { attentionCounts, searchHref } from "@/lib/medications/search";
 import { getCategories, getHomeBoxes } from "@/lib/storage/queries";
 import { signOut } from "../actions";
 
 export const metadata: Metadata = { title: "Local Pharm" };
 
-type Row = { key: string; count: number; title: string; emptyTitle: string; sub: string; href: string; tone: "danger" | "warn" | "tint" };
+type Row = { key: string; count: number; title: string; emptyTitle: string; sub: string; href: string; tone: "danger" | "warn" | "low" };
 
 const TONES = {
   danger: "bg-danger-bg text-danger-fg",
   warn: "bg-warn-bg text-warn-fg",
-  tint: "bg-tint text-navy",
+  low: "bg-low-bg text-low-fg",
 } as const;
 
 export default async function HomePage() {
-  const [packs, categories, boxes] = await Promise.all([
+  const [packs, categories, boxes, categoryRows] = await Promise.all([
     getAttentionPacks(),
     getCategories(),
     getHomeBoxes(),
+    getCategoryRows(),
   ]);
+  const categoryTotals = countByCategory(categoryRows);
   const counts = attentionCounts(packs, todayIso());
 
   const rows: Row[] = [];
@@ -58,7 +61,7 @@ export default async function HomePage() {
     emptyTitle: "Ничего не заканчивается",
     sub: "отмечены как «заканчивается»",
     href: searchHref({ attention: "low" }),
-    tone: "tint",
+    tone: "low",
   });
 
   return (
@@ -107,9 +110,16 @@ export default async function HomePage() {
               <li key={c.id}>
                 <Link
                   href={searchHref({ categoryId: c.id })}
-                  className="flex min-h-16 items-center rounded-card border border-border bg-surface px-4 py-3 text-sm leading-snug font-semibold no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+                  aria-label={categoryAria(c.name, categoryCount(categoryTotals, c.id))}
+                  className="flex min-h-16 items-center justify-between gap-2 rounded-card border border-border bg-surface px-4 py-3 text-sm leading-snug font-semibold no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
                 >
                   {c.name}
+                  <span
+                    aria-hidden="true"
+                    className={`flex-none text-[13px] ${categoryCount(categoryTotals, c.id) === 0 ? "text-muted" : "font-bold text-navy"}`}
+                  >
+                    {categoryCount(categoryTotals, c.id)}
+                  </span>
                 </Link>
               </li>
             ))}

@@ -15,7 +15,7 @@ export function ExpiryBadge({ status }: { status: ExpiryStatus }) {
 }
 
 export function LowStockBadge() {
-  return <span className={`${base} bg-tint text-navy`}>Мало</span>;
+  return <span className={`${base} bg-low-bg text-low-fg`}>Мало</span>;
 }
 
 const chipBase =

@@ -5,7 +5,7 @@ const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 
 export const inputClass =
-  `min-h-12 w-full rounded-field border border-border bg-surface px-3.5 text-[15px] font-normal text-navy placeholder:text-muted disabled:bg-tint disabled:text-muted ${focusRing}`;
+  `min-h-12 w-full rounded-field border border-border bg-surface px-3.5 text-[15px] font-medium text-navy placeholder:text-muted disabled:bg-tint disabled:text-muted ${focusRing}`;
 
 // ---- Buttons (docs/BRAND.md, section "Кнопки") ----
 // Roles: add (accent) · primary (navy, one per block) · secondary (border) ·
@@ -23,8 +23,8 @@ const addTone = "bg-accent text-navy hover:bg-accent/85 disabled:opacity-60";
 const primaryTone = "bg-navy text-white hover:bg-navy/90 disabled:opacity-60";
 const secondaryTone =
   "border border-border bg-surface text-navy hover:bg-tint disabled:text-muted";
-const warnTone =
-  "border border-warn-fg bg-warn-bg text-warn-fg hover:bg-warn-bg/70 disabled:opacity-60";
+const lowTone =
+  "border border-low-fg bg-low-bg text-low-fg hover:bg-low-bg/70 disabled:opacity-60";
 const textTone = "text-navy hover:bg-tint disabled:text-muted";
 const dangerTextTone = "text-danger-fg hover:bg-danger-bg disabled:opacity-60";
 
@@ -40,8 +40,8 @@ export const primaryButtonSmClass = `${buttonBase} ${sizeSm} ${primaryTone}`;
 export const secondaryButtonClass = `${buttonBase} ${sizeMd} ${secondaryTone}`;
 export const secondaryButtonSmClass = `${buttonBase} ${sizeSm} ${secondaryTone}`;
 
-/** "Заканчивается ✓": the toggle in its switched-on state. */
-export const warnButtonSmClass = `${buttonBase} ${sizeSm} ${warnTone}`;
+/** "Заканчивается ✓": the toggle in its switched-on state (mustard, like the "Мало" badge). */
+export const lowStockButtonSmClass = `${buttonBase} ${sizeSm} ${lowTone}`;
 
 /** Tertiary text button ("Переложить"). */
 export const textButtonClass = `${textBase} ${textTone}`;
@@ -61,9 +61,9 @@ export const sectionTitleClass =
 export const iconButtonClass =
   `flex size-11 items-center justify-center rounded-field text-navy hover:bg-tint ${focusRing}`;
 
-/** Small source tag ("Реестр AMDM", "Вручную"): tint background, muted text (≥ 4.5:1). */
+/** Small source tag ("Реестр AMDM", "Вручную", "Международные базы"): soft beige, black text. Same for every source. */
 export const sourceTagClass =
-  "flex-none rounded-tag bg-tint px-2 py-1 text-[11px] leading-none font-semibold text-muted";
+  "flex-none rounded-tag bg-tag-bg px-2 py-1 text-[11px] leading-none font-semibold text-ink";
 
 export const errorBoxClass =
   "rounded-field bg-danger-bg px-4 py-3 text-[13px] leading-normal text-danger-fg";

@@ -8,7 +8,7 @@ export type NavCounts = { shopping: number; expiry: number };
 export type NavItem = {
   href: string;
   label: string;
-  Icon: ComponentType<{ size?: number; strokeWidth?: number }>;
+  Icon: ComponentType<{ size?: number; strokeWidth?: number; fillClassName?: string }>;
   /** The "+" action: a round button on mobile, an accent button on desktop. */
   primary?: boolean;
   /** Which counter shows as a small badge on this item. */

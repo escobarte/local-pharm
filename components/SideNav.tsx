@@ -55,7 +55,7 @@ export function SideNav({ email, signOutAction, counts }: Props) {
                       : "font-medium text-tint hover:bg-surface/10"
                   }`}
                 >
-                  <item.Icon size={20} />
+                  <item.Icon size={22} fillClassName={active ? "fill-navy/20" : "fill-accent/30"} />
                   {item.label}
                   {badge ? (
                     <>

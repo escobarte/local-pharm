@@ -13,7 +13,7 @@ export function BottomNav({ counts }: { counts?: NavCounts | null }) {
   return (
     <nav
       aria-label="Основная навигация"
-      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)] lg:hidden print:hidden"
+      className="sticky bottom-0 z-10 border-t border-tint bg-surface pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-nav lg:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-md items-end px-2 pt-2">
         {NAV_ITEMS.map((item) => {
@@ -26,7 +26,7 @@ export function BottomNav({ counts }: { counts?: NavCounts | null }) {
                   href={item.href}
                   aria-label={item.label}
                   aria-current={active ? "page" : undefined}
-                  className="-mt-6 flex size-14 items-center justify-center rounded-full bg-accent text-navy shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+                  className="-mt-6 flex size-14 items-center justify-center rounded-full bg-accent text-navy shadow-fab focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
                 >
                   <IconPlus size={26} strokeWidth={2.2} />
                 </Link>
@@ -39,11 +39,11 @@ export function BottomNav({ counts }: { counts?: NavCounts | null }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-field text-[11px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy ${
-                  active ? "font-semibold text-navy" : "font-medium text-muted"
+                  active ? "font-bold text-navy" : "font-medium text-muted"
                 }`}
               >
-                <span className="relative">
-                  <item.Icon />
+                <span className="relative text-navy">
+                  <item.Icon fillClassName={active ? "fill-accent/60" : "fill-accent/20"} />
                   {badge ? (
                     <span
                       aria-hidden="true"

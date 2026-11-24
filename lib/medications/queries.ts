@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/storage/validation";
+import type { CategoryRow } from "./category-counts";
 import { duplicateFilter, type ExistingMedication } from "./duplicates";
 import type { AttentionPack, CatalogMedication, CatalogPack } from "./types";
 
@@ -90,6 +91,21 @@ export async function getCatalog(): Promise<CatalogMedication[]> {
   const { data, error } = await supabase.from("medications").select(MEDICATION_SELECT);
   if (error) throw new Error(`medications: ${error.message}`);
   return ((data ?? []) as unknown as RawMedication[]).map(normalizeMedication);
+}
+
+/**
+ * One light query for the home category tiles: only the category and the pack ids of
+ * medications that have at least one pack (`!inner`), no catalog. Like the catalog,
+ * it is limited by PostgREST to 1000 rows (see GOTCHAS).
+ */
+export async function getCategoryRows(): Promise<CategoryRow[]> {
+  const supabase = await client();
+  const { data, error } = await supabase.from("medications").select("category_id, packs!inner(id)");
+  if (error) throw new Error(`category counts: ${error.message}`);
+  return ((data ?? []) as unknown as { category_id: string | null; packs: { id: string }[] }[]).map((r) => ({
+    categoryId: r.category_id,
+    packCount: r.packs.length,
+  }));
 }
 
 export const getMedication = cache(async (id: string): Promise<CatalogMedication | null> => {

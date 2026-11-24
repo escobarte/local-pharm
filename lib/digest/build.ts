@@ -49,7 +49,7 @@ const byDateThenName = (a: DigestRow, b: DigestRow) =>
 
 // E-mail clients do not read CSS variables, so the BRAND token values are inlined
 // (docs/BRAND.md: navy, muted, danger-fg, warn-fg, border).
-const C = { navy: "#122056", muted: "#5A6283", danger: "#B42318", warn: "#9A4A00", border: "#DDDFF3" };
+const C = { navy: "#122056", muted: "#4F5778", danger: "#B42318", warn: "#9A4A00", border: "#DDDFF3" };
 
 /**
  * Nothing expired and nothing expiring → null (no e-mail is sent).

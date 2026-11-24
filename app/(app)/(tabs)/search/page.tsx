@@ -9,6 +9,7 @@ import { IconArrowRight, IconPlus } from "@/components/icons";
 import { addButtonClass, navLinkClass, secondaryButtonClass } from "@/components/ui";
 import { todayIso } from "@/lib/dates";
 import { foundLabel } from "@/lib/format";
+import { categoryAria, categoryCount, countByCategory } from "@/lib/medications/category-counts";
 import { getCatalog } from "@/lib/medications/queries";
 import { parseSearchParams, runSearch, searchHref, type AttentionFilter } from "@/lib/medications/search";
 import { isMedicationInShoppingList } from "@/lib/shopping/queries";
@@ -33,13 +34,37 @@ const FILTER_LABELS: Record<AttentionFilter, string> = {
 };
 
 const chipBase =
-  "flex min-h-11 flex-none items-center rounded-full px-4 text-sm font-semibold whitespace-nowrap no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
+  "flex min-h-11 flex-none items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
+
+/** Chip look: selected = navy; a category with no medications at home is quieter but still a link. */
+function chipTone(active: boolean, count: number): string {
+  if (active) return "bg-navy text-white";
+  return count === 0
+    ? "border border-border bg-surface text-muted hover:bg-tint"
+    : "bg-tint text-navy hover:bg-border";
+}
+
+/** The number inside a chip: a small badge, contrasting on the selected chip. */
+function CountBadge({ count, active }: { count: number; active: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs leading-none font-bold ${
+        active ? "bg-accent text-navy" : count === 0 ? "bg-tint text-muted" : "bg-surface text-navy"
+      }`}
+    >
+      {count}
+    </span>
+  );
+}
 
 export default async function SearchPage({ searchParams }: Props) {
   const rawParams = await searchParams;
   const params = parseSearchParams(rawParams);
   const [catalog, categories] = await Promise.all([getCatalog(), getCategories()]);
   const results = runSearch(catalog, params, todayIso());
+  // Medications with at least one pack, from the catalog already loaded (same numbers as on the home tiles).
+  const counts = countByCategory(catalog.map((m) => ({ categoryId: m.categoryId, packCount: m.packs.length })));
 
   const hidden: Record<string, string> = {};
   if (params.categoryId) hidden.cat = params.categoryId;
@@ -64,32 +89,42 @@ export default async function SearchPage({ searchParams }: Props) {
           <SearchBox defaultValue={params.q} hidden={hidden} />
         </div>
 
-        <nav aria-label="Категории" className="-mx-5 lg:mx-0">
-          <ul className="flex gap-2 overflow-x-auto px-5 pb-1 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0">
+        {/* Mobile: one swipeable row with no scrollbar and a soft fade on the right edge. */}
+        <nav aria-label="Категории" className="relative -mx-5 lg:mx-0">
+          <ul className="no-scrollbar flex gap-2 overflow-x-auto px-5 lg:flex-wrap lg:overflow-visible lg:px-0">
             <li className="flex-none">
               <Link
                 href={searchHref({ q: params.q, attention: params.attention })}
                 aria-current={params.categoryId ? undefined : "true"}
-                className={`${chipBase} ${params.categoryId ? "bg-tint text-navy hover:bg-border" : "bg-navy text-white"}`}
+                aria-label={categoryAria("Все", counts.total)}
+                className={`${chipBase} ${chipTone(!params.categoryId, counts.total)}`}
               >
                 Все
+                <CountBadge count={counts.total} active={!params.categoryId} />
               </Link>
             </li>
             {categories.map((c) => {
               const active = c.id === params.categoryId;
+              const count = categoryCount(counts, c.id);
               return (
                 <li key={c.id} className="flex-none">
                   <Link
                     href={searchHref({ q: params.q, categoryId: c.id, attention: params.attention })}
                     aria-current={active ? "true" : undefined}
-                    className={`${chipBase} ${active ? "bg-navy text-white" : "bg-tint text-navy hover:bg-border"}`}
+                    aria-label={categoryAria(c.name, count)}
+                    className={`${chipBase} ${chipTone(active, count)}`}
                   >
                     {c.name}
+                    <CountBadge count={count} active={active} />
                   </Link>
                 </li>
               );
             })}
           </ul>
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-linear-to-l from-bg to-transparent lg:hidden"
+          />
         </nav>
 
         {params.attention ? (

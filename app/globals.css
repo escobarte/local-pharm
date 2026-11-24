@@ -8,12 +8,27 @@
   --color-surface: #ffffff;
   --color-tint: #eeeffd;
   --color-border: #dddff3;
-  --color-muted: #5a6283;
+  --color-muted: #4f5778;
   --color-danger-fg: #b42318;
   --color-danger-bg: #fdecea;
   --color-warn-fg: #9a4a00;
   --color-warn-bg: #fff1e0;
   --color-warn-dot: #d97706;
+  /* "Мало" / "Заканчивается": mustard, distinct from the orange "Истекает" */
+  --color-low-fg: #6e5400;
+  --color-low-bg: #f6ecc9;
+  /* Medication icon by form: plate + icon (icon darkened to >= 3:1 on the plate) */
+  --color-med-plate: #f4f1f0;
+  --color-med-icon: #978784;
+  /* Source tag ("Реестр AMDM", "Вручную", "Международные базы") */
+  --color-tag-bg: #f3eee8;
+  --color-ink: #1a1a1a;
+  /* Box icon in the place line (>= 3:1 on white) */
+  --color-box-icon: #de732e;
+
+  /* Soft shadows of the menu: the bar casts up, the "+" button down */
+  --shadow-nav: 0 -6px 18px -6px rgb(18 32 86 / 0.12);
+  --shadow-fab: 0 8px 16px -4px rgb(18 32 86 / 0.25);
 
   --radius-field: 12px;
   --radius-button: 14px;
@@ -32,4 +47,14 @@ body {
   color: var(--color-navy);
   font-family: var(--font-sans);
   font-size: 15px;
+  /* One step heavier than the browser default (400 -> 500); headings and names set their own weight. */
+  font-weight: 500;
+}
+
+/* Horizontal scroller without a visible scrollbar (swipe still works). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

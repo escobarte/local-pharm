@@ -6,7 +6,7 @@ import { initialActionState, type ActionState } from "@/lib/storage/action-state
 import { AddToShoppingButton } from "./AddToShoppingButton";
 import { IconCheck } from "./icons";
 import { SubmitButton } from "./SubmitButton";
-import { errorBoxClass, primaryButtonSmClass, secondaryButtonSmClass, warnButtonSmClass } from "./ui";
+import { errorBoxClass, primaryButtonSmClass, secondaryButtonSmClass, lowStockButtonSmClass } from "./ui";
 
 type Props = {
   packId: string;
@@ -44,7 +44,7 @@ export function PackActions({ packId, quantity, lowStock, medicationId, inShoppi
           <input type="hidden" name="packId" value={packId} />
           <input type="hidden" name="lowStock" value={lowStock ? "false" : "true"} />
           <SubmitButton
-            className={`${lowStock ? warnButtonSmClass : secondaryButtonSmClass} w-full`}
+            className={`${lowStock ? lowStockButtonSmClass : secondaryButtonSmClass} w-full`}
             pressed={lowStock}
             pendingText="Сохраняем…"
           >
