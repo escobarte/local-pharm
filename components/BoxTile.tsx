@@ -2,6 +2,7 @@ import { packsShort } from "@/lib/format";
 import { boxColorClasses } from "@/lib/storage/box-colors";
 import { CountChip } from "./Badge";
 import { DesktopSelectLink } from "./DesktopSelectLink";
+import { IconStorage } from "./icons";
 
 type Props = {
   box: { id: string; name: string; number: string | null; color: string | null; packCount: number };
@@ -12,8 +13,8 @@ type Props = {
 };
 
 /**
- * Box tile shared by "Хранение" and the home screen: number plate, name,
- * muted subtitle and the pack count chip. Mobile: opens /storage/[id]; desktop
+ * Box tile shared by "Хранение" and the home screen: number plate and box icon,
+ * name, muted subtitle and the pack count chip. Mobile: opens /storage/[id]; desktop
  * (lg): selects the box in the panel of /storage (`?box=`).
  */
 export function BoxTile({ box, subtitle, selected }: Props) {
@@ -30,12 +31,17 @@ export function BoxTile({ box, subtitle, selected }: Props) {
         >
           {box.number ?? "•"}
         </span>
-        <CountChip text={packsShort(box.packCount)} />
+        {/* Own `surface` plate: on hover the tile turns `tint`, where box-icon is below 3:1. */}
+        <span className="flex size-9 flex-none items-center justify-center rounded-field bg-surface text-box-icon">
+          <IconStorage size={22} fillClassName="fill-none" />
+        </span>
       </span>
       <span className="flex flex-col gap-0.5">
         <span className="text-base leading-snug font-bold break-words">{box.name}</span>
         {subtitle ? <span className="text-xs leading-snug text-muted">{subtitle}</span> : null}
       </span>
+      {/* Bottom of the tile: beside the number and the icon it would not fit a narrow phone. */}
+      <CountChip text={packsShort(box.packCount)} className="mt-auto self-start" />
     </DesktopSelectLink>
   );
 }

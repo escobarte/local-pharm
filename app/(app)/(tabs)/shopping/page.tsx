@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FormPlate, ListPlate } from "@/components/FormIcon";
 import { IconStorage } from "@/components/icons";
 import { Page } from "@/components/Page";
 import { BoughtCheckbox, RemoveItemButton, ReturnButton, ShoppingAddForm } from "@/components/ShoppingParts";
 import { sectionTitleClass, secondaryButtonSmClass } from "@/components/ui";
 import { positionsLabel } from "@/lib/format";
 import { buyerName, reasonLabel, shortDate } from "@/lib/shopping/logic";
-import { BOUGHT_LIMIT, getBoughtItems, getOpenItems } from "@/lib/shopping/queries";
+import { BOUGHT_LIMIT, getBoughtItems, getOpenItems, type ShoppingItem } from "@/lib/shopping/queries";
 
 export const metadata: Metadata = { title: "Покупки — Local Pharm" };
+
+/** Icon by form for an item linked to a medication, a list icon for the rest. */
+function ItemPlate({ item }: { item: ShoppingItem }) {
+  return item.medicationId ? <FormPlate form={item.form} /> : <ListPlate />;
+}
 
 export default async function ShoppingPage() {
   const [open, bought] = await Promise.all([getOpenItems(), getBoughtItems()]);
@@ -37,16 +43,26 @@ export default async function ShoppingPage() {
             ) : (
               <ul className="flex flex-col gap-2">
                 {open.map((item) => (
+                  // Below `xl` the remove button shares the second line with the reason, so
+                  // the name runs to the right edge. From `xl` it is its own column again.
                   <li
                     key={item.id}
-                    className="flex items-center gap-1 rounded-card border border-border bg-surface py-1.5 pr-1.5 pl-1.5"
+                    className="grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center rounded-card border border-border bg-surface p-1"
                   >
-                    <BoughtCheckbox itemId={item.id} title={item.title} />
-                    <div className="flex min-w-0 flex-1 flex-col gap-0.5 py-1">
-                      <span className="text-[15px] leading-snug font-bold break-words">{item.title}</span>
-                      <span className="text-[13px] text-muted">{reasonLabel(item.reason)}</span>
+                    <div className="row-span-2">
+                      <BoughtCheckbox itemId={item.id} title={item.title} />
                     </div>
-                    <RemoveItemButton itemId={item.id} title={item.title} />
+                    <div className="row-span-2 mr-2">
+                      <ItemPlate item={item} />
+                    </div>
+                    <span className="col-span-2 self-end pt-1 pr-2 text-[15px] leading-snug font-bold break-words xl:col-span-1">
+                      {item.title}
+                    </span>
+                    <span className="col-start-3 self-start pt-0.5 text-[13px] text-muted">{reasonLabel(item.reason)}</span>
+                    {/* -mt-1 stays under the baseline of the name: the delete target never covers its text. */}
+                    <div className="-mt-1 xl:col-start-4 xl:row-span-2 xl:row-start-1 xl:mt-0">
+                      <RemoveItemButton itemId={item.id} title={item.title} />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -69,11 +85,14 @@ export default async function ShoppingPage() {
                       key={item.id}
                       className="flex flex-col gap-2 rounded-card border border-border bg-surface p-3.5"
                     >
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[15px] leading-snug font-bold break-words">{item.title}</span>
-                        <span className="text-[13px] text-muted">
-                          {buyerName(item.boughtBy)} · {shortDate(item.boughtAt)}
-                        </span>
+                      <div className="flex items-start gap-2.5">
+                        <ItemPlate item={item} />
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="text-[15px] leading-snug font-bold break-words">{item.title}</span>
+                          <span className="text-[13px] text-muted">
+                            {buyerName(item.boughtBy)} · {shortDate(item.boughtAt)}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {item.medicationId ? (

@@ -9,6 +9,8 @@ export type ExpiryItem = {
   medicationId: string;
   /** "Нурофен 200 мг": the name as on the medication card. */
   title: string;
+  /** Dosage form of the medication: picks the row icon. */
+  form: string | null;
   expiryDate: IsoDate | null;
   quantity: number;
   place: PackPlace | null;
@@ -19,7 +21,7 @@ type RawRow = {
   quantity: number;
   expiry_date: string | null;
   medication_id: string;
-  medications: { name: string; dosage: string | null } | null;
+  medications: { name: string; dosage: string | null; form: string | null } | null;
   compartments: {
     id: string;
     code: string;
@@ -37,7 +39,7 @@ export async function getExpiryItems(today: IsoDate): Promise<ExpiryItem[]> {
   const { data, error } = await supabase
     .from("packs")
     .select(
-      "id, quantity, expiry_date, medication_id, medications(name, dosage), compartments(id, code, boxes(id, name, number))",
+      "id, quantity, expiry_date, medication_id, medications(name, dosage, form), compartments(id, code, boxes(id, name, number))",
     )
     .not("expiry_date", "is", null)
     .lte("expiry_date", expiryHorizon(today))
@@ -51,6 +53,7 @@ export async function getExpiryItems(today: IsoDate): Promise<ExpiryItem[]> {
       packId: row.id,
       medicationId: row.medication_id,
       title: med ? (med.dosage ? `${med.name} ${med.dosage}` : med.name) : "Препарат",
+      form: med?.form ?? null,
       expiryDate: row.expiry_date,
       quantity: row.quantity,
       place:

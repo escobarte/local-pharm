@@ -137,6 +137,13 @@ export const IconBarcode = (p: IconProps) => (
   </Svg>
 );
 
+/** A shopping item that is not a medication from the base (neutral row icon). */
+export const IconList = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9.5 6.5H20M9.5 12H20M9.5 17.5H20M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01" />
+  </Svg>
+);
+
 // ---- Medication icons by dosage form (lib/medications/form-icon.ts) ----
 // Same style as above: line, stroke 1.8, 24 px. Color comes from the parent (`text-med-icon`).
 

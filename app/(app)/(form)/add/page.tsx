@@ -194,6 +194,7 @@ export default async function AddPage({ searchParams }: Props) {
           <>
             <PickedCard
               source="amdm"
+              form={picked.form}
               title={picked.name}
               lines={registryLines(picked, barcodeNote)}
               changeHref={href({ mode: "search", q: query, bc, dup })}
@@ -215,6 +216,7 @@ export default async function AddPage({ searchParams }: Props) {
       <>
         <PickedCard
           source="openfda"
+          form={fdaPick.form}
           title={fdaPick.name}
           lines={[...openFdaLines(fdaPick), bc ? `штрихкод ${bc}` : ""]}
           changeHref={href({ mode: "search", q: query, bc, dup })}

@@ -14,6 +14,8 @@ export type ExistingMedication = {
   id: string;
   name: string;
   dosage: string | null;
+  /** Dosage form, only for the row icon; duplicate matching ignores it. */
+  form?: string | null;
   registryCode: string | null;
   barcode: string | null;
 };

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { AddCompartmentForm } from "@/components/AddCompartmentForm";
 import { ExpiryChip, QuantityChip } from "@/components/Badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { IconCheck, IconEdit, IconPlus, IconPrint } from "@/components/icons";
+import { FormPlate } from "@/components/FormIcon";
+import { IconCheck, IconEdit, IconPlus, IconPrint, IconStorage } from "@/components/icons";
 import {
   addButtonClass,
   dangerLinkClass,
@@ -68,7 +69,10 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Heading className="text-2xl leading-tight font-bold break-words">{box.name}</Heading>
-          <p className="text-sm text-muted">{subtitle}</p>
+          <p className="flex items-start gap-1.5 text-sm text-muted">
+            <IconStorage size={16} className="mt-0.5 flex-none text-box-icon" fillClassName="fill-none" />
+            <span className="min-w-0 break-words">{subtitle}</span>
+          </p>
         </div>
         {showEdit ? (
           <Link href={`/storage/${box.id}/edit`} aria-label="Изменить коробку" className={iconButtonClass}>
@@ -139,8 +143,10 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
                 <li key={item.id}>
                   <Link
                     href={`/medications/${item.medicationId}`}
-                    className="flex min-h-16 items-center gap-3 px-4 py-3 no-underline hover:bg-tint focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-navy"
+                    className="flex min-h-16 items-start gap-2.5 px-4 py-3 no-underline hover:bg-tint focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-navy"
                   >
+                    <FormPlate form={item.form} />
+                    {/* Chips go under the text: the name keeps the full width beside the icon. */}
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="text-base leading-snug font-bold break-words">
                         {item.medicationName}
@@ -148,13 +154,13 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
                       {sub ? (
                         <span className="text-[13px] leading-snug break-words text-muted">{sub}</span>
                       ) : null}
-                    </span>
-                    <span className="flex flex-none flex-col items-end gap-1">
-                      <QuantityChip text={pcsLabel(item.quantity)} />
-                      <ExpiryChip
-                        text={item.expiry_date ? `до ${formatExpiry(item.expiry_date)}` : ""}
-                        status={status}
-                      />
+                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                        <QuantityChip text={pcsLabel(item.quantity)} />
+                        <ExpiryChip
+                          text={item.expiry_date ? `до ${formatExpiry(item.expiry_date)}` : ""}
+                          status={status}
+                        />
+                      </span>
                     </span>
                   </Link>
                 </li>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FormPlate } from "@/components/FormIcon";
 import { PackForm } from "@/components/PackForm";
 import { Page } from "@/components/Page";
 import { ScreenHeader } from "@/components/ScreenHeader";
@@ -43,10 +44,13 @@ export default async function NewPackPage({ params, searchParams }: Props) {
         backIcon="close"
         heading
       />
-      <p className="px-5 pb-3 text-[15px] font-semibold break-words lg:px-0">
-        {med.name}
-        {med.dosage ? ` ${med.dosage}` : ""}
-      </p>
+      <div className="flex items-center gap-2.5 px-5 pb-3 lg:px-0">
+        <FormPlate form={med.form} />
+        <p className="min-w-0 text-[15px] font-semibold break-words">
+          {med.name}
+          {med.dosage ? ` ${med.dosage}` : ""}
+        </p>
+      </div>
       {boxes.length === 0 ? (
         <main className="flex flex-col gap-4 px-5 pb-6 lg:max-w-xl lg:p-0">
           <p className="rounded-card border border-border bg-surface p-5 text-[15px] leading-normal">

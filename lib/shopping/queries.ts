@@ -17,6 +17,8 @@ export type ShoppingItem = {
   id: string;
   title: string;
   medicationId: string | null;
+  /** Dosage form of the linked medication (row icon); null for manual items. */
+  form: string | null;
   reason: ShoppingReason;
   createdBy: string;
   createdAt: string;
@@ -33,15 +35,17 @@ type RawItem = {
   created_at: string;
   bought_at: string | null;
   bought_by: string | null;
+  medications: { form: string | null } | null;
 };
 
-const COLUMNS = "id, title, medication_id, reason, created_by, created_at, bought_at, bought_by";
+const COLUMNS = "id, title, medication_id, reason, created_by, created_at, bought_at, bought_by, medications(form)";
 
 function normalize(row: RawItem): ShoppingItem {
   return {
     id: row.id,
     title: row.title,
     medicationId: row.medication_id,
+    form: row.medications?.form ?? null,
     reason: row.reason,
     createdBy: row.created_by,
     createdAt: row.created_at,
@@ -59,7 +63,7 @@ export async function getOpenItems(): Promise<ShoppingItem[]> {
     .is("bought_at", null)
     .order("created_at", { ascending: true });
   if (error) throw new Error(`shopping_items: ${error.message}`);
-  return ((data ?? []) as RawItem[]).map(normalize);
+  return ((data ?? []) as unknown as RawItem[]).map(normalize);
 }
 
 export const BOUGHT_LIMIT = 20;
@@ -74,7 +78,7 @@ export async function getBoughtItems(limit = BOUGHT_LIMIT): Promise<ShoppingItem
     .order("bought_at", { ascending: false })
     .limit(limit);
   if (error) throw new Error(`shopping_items: ${error.message}`);
-  return ((data ?? []) as RawItem[]).map(normalize);
+  return ((data ?? []) as unknown as RawItem[]).map(normalize);
 }
 
 /** Medications that already have an open item: the "В списке" state of the buttons. */

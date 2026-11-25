@@ -140,12 +140,12 @@ export async function findExistingMedications(params: {
   const supabase = await client();
   const { data, error } = await supabase
     .from("medications")
-    .select("id, name, dosage, registry_code, barcode")
+    .select("id, name, dosage, form, registry_code, barcode")
     .or(filter)
     .order("created_at")
     .limit(20);
   if (error) throw new Error(`medications by barcode: ${error.message}`);
-  return ((data ?? []) as { id: string; name: string; dosage: string | null; registry_code: string | null; barcode: string | null }[]).map(
-    (r) => ({ id: r.id, name: r.name, dosage: r.dosage, registryCode: r.registry_code, barcode: r.barcode }),
+  return ((data ?? []) as { id: string; name: string; dosage: string | null; form: string | null; registry_code: string | null; barcode: string | null }[]).map(
+    (r) => ({ id: r.id, name: r.name, dosage: r.dosage, form: r.form, registryCode: r.registry_code, barcode: r.barcode }),
   );
 }

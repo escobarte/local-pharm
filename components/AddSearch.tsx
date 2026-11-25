@@ -10,6 +10,7 @@ import { pcsLabel } from "@/lib/format";
 import { placeLabel, sourceName, type SearchResult } from "@/lib/medications/search";
 import type { OpenFdaItem } from "@/lib/openfda/parse";
 import { searchOpenFda } from "@/lib/openfda/fetch";
+import { FormPlate } from "./FormIcon";
 import { IconArrowRight, IconPlus, IconSearch } from "./icons";
 import {
   addButtonClass,
@@ -30,6 +31,19 @@ const noteClass = "rounded-card border border-dashed border-border px-4 py-5 tex
 const cardLinkClass =
   "flex min-h-11 flex-col gap-1 rounded-card border border-border bg-surface p-4 no-underline hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy lg:h-full";
 const listClass = "flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:gap-3";
+
+/**
+ * Head of a result: the form icon, then the name with the source tag under it.
+ * Only the head stands beside the icon — the lines below keep the full card width.
+ */
+function ResultHead({ form, children }: { form: string | null | undefined; children: ReactNode }) {
+  return (
+    <span className="flex items-start gap-2.5">
+      <FormPlate form={form} />
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-1">{children}</span>
+    </span>
+  );
+}
 
 // ---------- Search form ----------
 
@@ -112,10 +126,10 @@ export function HomeResults({ results, packHref }: { results: SearchResult[]; pa
               .join(" · ");
             return (
               <li key={med.id} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="text-[15px] leading-snug font-semibold break-words">{med.name}</p>
+                <ResultHead form={med.form}>
+                  <span className="text-[15px] leading-snug font-semibold break-words">{med.name}</span>
                   <span className={sourceTagClass}>{sourceName(med.source)}</span>
-                </div>
+                </ResultHead>
                 {sub ? <p className="text-[13px] leading-snug break-words text-muted">{sub}</p> : null}
                 <p className="text-[13px] leading-snug break-words">{meta}</p>
                 <div className="flex items-center justify-between gap-2 border-t border-tint pt-2">
@@ -189,10 +203,10 @@ function RegistryRow({ item, href }: { item: RegistryItem; href: string }) {
   return (
     <li>
       <Link href={href} className={cardLinkClass}>
-        <span className="flex flex-wrap items-start justify-between gap-2">
+        <ResultHead form={item.form}>
           <span className="text-[15px] leading-snug font-semibold break-words">{item.name}</span>
           <span className={sourceTagClass}>{sourceName("amdm")}</span>
-        </span>
+        </ResultHead>
         {sub ? <span className="text-[13px] leading-snug break-words text-muted">{sub}</span> : null}
         {item.inn ? <span className="text-[13px] leading-snug break-words">{item.inn}</span> : null}
         {maker ? <span className="text-xs leading-snug break-words text-muted">{maker}</span> : null}
@@ -249,12 +263,12 @@ function OpenFdaRow({ item, href }: { item: OpenFdaItem; href: string }) {
   return (
     <li>
       <Link href={href} className={cardLinkClass} lang="en">
-        <span className="flex flex-wrap items-start justify-between gap-2">
+        <ResultHead form={item.form}>
           <span className="text-[15px] leading-snug font-semibold break-words">{item.name}</span>
           <span className={sourceTagClass} lang="ru">
             {sourceName("openfda")}
           </span>
-        </span>
+        </ResultHead>
         {sub ? <span className="text-[13px] leading-snug break-words text-muted">{sub}</span> : null}
         {item.inn ? <span className="text-[13px] leading-snug break-words">{item.inn}</span> : null}
         {item.manufacturer ? (
@@ -273,11 +287,14 @@ const changeLinkClass =
 /** The row picked in the registry or openFDA, above the prefilled form. */
 export function PickedCard({
   source,
+  form,
   title,
   lines,
   changeHref,
 }: {
   source: "amdm" | "openfda";
+  /** Dosage form of the picked row: picks the icon. */
+  form: string | null | undefined;
   title: string;
   lines: string[];
   changeHref: string;
@@ -287,13 +304,16 @@ export function PickedCard({
       aria-labelledby="picked-title"
       className="mx-5 mb-4 flex flex-col gap-1.5 rounded-card bg-tint p-4 lg:mx-0 lg:mb-5"
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 id="picked-title" className="text-[15px] leading-snug font-semibold break-words">
-          {title}
-        </h2>
-        <span className="flex-none rounded-tag bg-surface px-2 py-1 text-[11px] leading-none font-semibold text-muted">
-          {sourceName(source)}
-        </span>
+      <div className="flex items-start gap-2.5">
+        <FormPlate form={form} />
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+          <h2 id="picked-title" className="text-[15px] leading-snug font-semibold break-words">
+            {title}
+          </h2>
+          <span className="rounded-tag bg-surface px-2 py-1 text-[11px] leading-none font-semibold text-muted">
+            {sourceName(source)}
+          </span>
+        </div>
       </div>
       {lines.filter(Boolean).map((line) => (
         <p key={line} className="text-[13px] leading-snug break-words text-muted">
@@ -324,7 +344,7 @@ export function DuplicateNotice({
   separateHref,
   reason,
 }: {
-  medications: { id: string; name: string; dosage: string | null }[];
+  medications: { id: string; name: string; dosage: string | null; form?: string | null }[];
   packHref: (id: string) => string;
   separateHref: string;
   reason: "registry" | "barcode";
@@ -346,10 +366,13 @@ export function DuplicateNotice({
           <li key={m.id} className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
             <Link
               href={`/medications/${m.id}`}
-              className="flex min-h-11 items-center text-[15px] font-semibold break-words text-navy underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+              className="flex min-h-11 items-center gap-2.5 text-[15px] font-semibold text-navy underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
             >
-              {m.name}
-              {m.dosage ? ` ${m.dosage}` : ""}
+              <FormPlate form={m.form} />
+              <span className="min-w-0 break-words">
+                {m.name}
+                {m.dosage ? ` ${m.dosage}` : ""}
+              </span>
             </Link>
             <Link href={packHref(m.id)} className={`${addButtonClass} lg:min-w-72`}>
               <IconPlus size={20} strokeWidth={2.2} />
