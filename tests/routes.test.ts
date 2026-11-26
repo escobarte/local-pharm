@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { isPublicPath, safeNextPath } from "../lib/routes.ts";
 
 test("public paths", () => {
-  for (const p of ["/login", "/no-access", "/not-configured", "/auth/callback", "/auth/denied"]) {
+  for (const p of ["/login", "/no-access", "/not-configured", "/auth/callback", "/auth/denied", "/offline", "/sw.js"]) {
     assert.equal(isPublicPath(p), true, p);
   }
   for (const p of ["/", "/storage", "/login/x", "/authx", "/api/cron/keepalive"]) {

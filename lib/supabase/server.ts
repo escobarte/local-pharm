@@ -36,7 +36,8 @@ export async function createSupabaseServerClient(): Promise<SupabaseClient | nul
 }
 
 export type AccessResult =
-  | { status: "allowed"; email: string }
+  /** `userId` binds the offline snapshot on the device to its account. */
+  | { status: "allowed"; email: string; userId: string }
   | { status: "no-session" }
   | { status: "denied" };
 
@@ -57,7 +58,7 @@ export async function checkAccess(supabase: SupabaseClient): Promise<AccessResul
   if (allowed !== true) return { status: "denied" };
 
   const email = typeof claims.email === "string" ? claims.email : "";
-  return { status: "allowed", email };
+  return { status: "allowed", email, userId: claims.sub };
 }
 
 /**

@@ -94,9 +94,14 @@ type Props = {
   /** Barcode mode: kept in the result URL ("Добавить сюда"). */
   box?: string;
   cell?: string;
+  /**
+   * Takes the result (box token or barcode) instead of opening a server page:
+   * the offline page looks it up on the device. Must be a stable function.
+   */
+  onFound?: (value: string) => void;
 };
 
-export function BarcodeScanner({ kind = "barcode", box, cell }: Props) {
+export function BarcodeScanner({ kind = "barcode", box, cell, onFound }: Props) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState<Status>("starting");
@@ -146,14 +151,16 @@ export function BarcodeScanner({ kind = "barcode", box, cell }: Props) {
         stopAll();
         setForeign(false);
         setStatus("found");
-        router.push(boxQrPath(parsed.token));
+        if (onFound) onFound(parsed.token);
+        else router.push(boxQrPath(parsed.token));
         return;
       }
       const parsed = parseBarcode(text);
       if (!parsed.ok) return; // misread or a non-retail code: keep scanning
       stopAll();
       setStatus("found");
-      router.push(addPageHref({ mode: "scan", code: parsed.value, box, cell }));
+      if (onFound) onFound(parsed.value);
+      else router.push(addPageHref({ mode: "scan", code: parsed.value, box, cell }));
     };
 
     (async () => {
@@ -278,7 +285,7 @@ export function BarcodeScanner({ kind = "barcode", box, cell }: Props) {
     })();
 
     return stopAll;
-  }, [active, attempt, router, box, cell, kind]);
+  }, [active, attempt, router, box, cell, kind, onFound]);
 
   const message = messages(kind)[status];
   const hint = HINTS[kind];

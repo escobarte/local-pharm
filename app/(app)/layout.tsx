@@ -1,10 +1,15 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { OfflineBar } from "@/components/pwa/OfflineBar";
+import { SnapshotSync } from "@/components/pwa/SnapshotSync";
 import { SideNav } from "@/components/SideNav";
 import { getNavCounts } from "@/lib/nav-counts";
 import { getAccess } from "@/lib/supabase/server";
 import { LOGIN_PATH, NOT_CONFIGURED_PATH } from "@/lib/routes";
 import { signOut } from "./actions";
+
+/** A value that differs on every server render (see SnapshotSync). */
+const renderStamp = () => Date.now();
 
 /**
  * Server-side gate for every app screen: valid session + allowlist.
@@ -24,7 +29,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="lg:flex lg:min-h-dvh">
       <SideNav email={access.email} signOutAction={signOut} counts={counts} />
-      <div className="min-w-0 lg:flex-1">{children}</div>
+      <div className="min-w-0 lg:flex-1">
+        <OfflineBar />
+        {children}
+      </div>
+      <SnapshotSync userId={access.userId} stamp={renderStamp()} />
     </div>
   );
 }

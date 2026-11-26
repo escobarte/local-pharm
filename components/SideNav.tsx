@@ -101,7 +101,7 @@ export function SideNav({ email, signOutAction, counts }: Props) {
           <span className="truncate text-[13px] text-white" title={email || undefined}>
             {email || "Аккаунт"}
           </span>
-          <form action={signOutAction}>
+          <form action={signOutAction} data-signout="">
             <button
               type="submit"
               className={`-ml-1 flex min-h-11 items-center rounded-field px-1 text-xs text-tint hover:text-white ${focus}`}

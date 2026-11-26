@@ -152,7 +152,7 @@ export default async function HomePage() {
         </section>
 
         {/* Desktop: "Выйти" lives in the side menu. */}
-        <form action={signOut} className="lg:hidden">
+        <form action={signOut} data-signout="" className="lg:hidden">
           <button type="submit" className={`${secondaryButtonClass} min-h-12 w-full`}>
             Выйти
           </button>

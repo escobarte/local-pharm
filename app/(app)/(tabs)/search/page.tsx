@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChipRow, CountBadge, chipClass } from "@/components/CategoryChips";
 import { MedicationCard } from "@/components/MedicationCard";
 import { MedicationHead, PackList } from "@/components/MedicationParts";
 import { Page } from "@/components/Page";
@@ -33,31 +34,6 @@ const FILTER_LABELS: Record<AttentionFilter, string> = {
   low: "Заканчиваются",
 };
 
-const chipBase =
-  "flex min-h-11 flex-none items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
-
-/** Chip look: selected = navy; a category with no medications at home is quieter but still a link. */
-function chipTone(active: boolean, count: number): string {
-  if (active) return "bg-navy text-white";
-  return count === 0
-    ? "border border-border bg-surface text-muted hover:bg-tint"
-    : "bg-tint text-navy hover:bg-border";
-}
-
-/** The number inside a chip: a small badge, contrasting on the selected chip. */
-function CountBadge({ count, active }: { count: number; active: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs leading-none font-bold ${
-        active ? "bg-accent text-navy" : count === 0 ? "bg-tint text-muted" : "bg-surface text-navy"
-      }`}
-    >
-      {count}
-    </span>
-  );
-}
-
 export default async function SearchPage({ searchParams }: Props) {
   const rawParams = await searchParams;
   const params = parseSearchParams(rawParams);
@@ -89,43 +65,36 @@ export default async function SearchPage({ searchParams }: Props) {
           <SearchBox defaultValue={params.q} hidden={hidden} />
         </div>
 
-        {/* Mobile: one swipeable row with no scrollbar and a soft fade on the right edge. */}
-        <nav aria-label="Категории" className="relative -mx-5 lg:mx-0">
-          <ul className="no-scrollbar flex gap-2 overflow-x-auto px-5 lg:flex-wrap lg:overflow-visible lg:px-0">
-            <li className="flex-none">
-              <Link
-                href={searchHref({ q: params.q, attention: params.attention })}
-                aria-current={params.categoryId ? undefined : "true"}
-                aria-label={categoryAria("Все", counts.total)}
-                className={`${chipBase} ${chipTone(!params.categoryId, counts.total)}`}
-              >
-                Все
-                <CountBadge count={counts.total} active={!params.categoryId} />
-              </Link>
-            </li>
-            {categories.map((c) => {
-              const active = c.id === params.categoryId;
-              const count = categoryCount(counts, c.id);
-              return (
-                <li key={c.id} className="flex-none">
-                  <Link
-                    href={searchHref({ q: params.q, categoryId: c.id, attention: params.attention })}
-                    aria-current={active ? "true" : undefined}
-                    aria-label={categoryAria(c.name, count)}
-                    className={`${chipBase} ${chipTone(active, count)}`}
-                  >
-                    {c.name}
-                    <CountBadge count={count} active={active} />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-linear-to-l from-bg to-transparent lg:hidden"
-          />
-        </nav>
+        <ChipRow>
+          <li className="flex-none">
+            <Link
+              href={searchHref({ q: params.q, attention: params.attention })}
+              aria-current={params.categoryId ? undefined : "true"}
+              aria-label={categoryAria("Все", counts.total)}
+              className={chipClass(!params.categoryId, counts.total)}
+            >
+              Все
+              <CountBadge count={counts.total} active={!params.categoryId} />
+            </Link>
+          </li>
+          {categories.map((c) => {
+            const active = c.id === params.categoryId;
+            const count = categoryCount(counts, c.id);
+            return (
+              <li key={c.id} className="flex-none">
+                <Link
+                  href={searchHref({ q: params.q, categoryId: c.id, attention: params.attention })}
+                  aria-current={active ? "true" : undefined}
+                  aria-label={categoryAria(c.name, count)}
+                  className={chipClass(active, count)}
+                >
+                  {c.name}
+                  <CountBadge count={count} active={active} />
+                </Link>
+              </li>
+            );
+          })}
+        </ChipRow>
 
         {params.attention ? (
           <p className="flex items-center justify-between gap-2 rounded-field bg-warn-bg px-4 py-1 text-[13px] font-semibold text-warn-fg">

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "@/lib/env";
+import { OFFLINE_PATH, SW_PATH } from "@/lib/offline/sw";
 import { LOGIN_PATH, NOT_CONFIGURED_PATH, isPublicPath, safeNextPath } from "@/lib/routes";
 
 /**
@@ -11,6 +12,10 @@ import { LOGIN_PATH, NOT_CONFIGURED_PATH, isPublicPath, safeNextPath } from "@/l
  */
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  // The service worker and the offline shell carry no data and must load for anyone,
+  // with or without a session or configuration (the worker rejects redirects).
+  if (pathname === OFFLINE_PATH || pathname === SW_PATH) return NextResponse.next();
+
   const env = getSupabaseEnv();
 
   if (!env) {

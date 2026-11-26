@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { AddCompartmentForm } from "@/components/AddCompartmentForm";
-import { ExpiryChip, QuantityChip } from "@/components/Badge";
+import { BoxHeader, BoxItemBody, CellBody, boxItemClass, cellClass } from "@/components/BoxParts";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { FormPlate } from "@/components/FormIcon";
-import { IconCheck, IconEdit, IconPlus, IconPrint, IconStorage } from "@/components/icons";
+import { IconCheck, IconEdit, IconPlus, IconPrint } from "@/components/icons";
 import {
   addButtonClass,
   dangerLinkClass,
@@ -12,10 +11,9 @@ import {
   sectionTitleClass,
   successBoxClass,
 } from "@/components/ui";
-import { expiryStatus, formatExpiry, todayIso } from "@/lib/dates";
-import { compartmentsLabel, packsLabel, packsShort, pcsLabel } from "@/lib/format";
+import { todayIso } from "@/lib/dates";
+import { compartmentsLabel, packsLabel } from "@/lib/format";
 import { deleteCompartment } from "@/lib/storage/actions";
-import { boxColorClasses } from "@/lib/storage/box-colors";
 import type { getBox, getBoxDetail } from "@/lib/storage/queries";
 import { compartmentColumns } from "@/lib/storage/summary";
 
@@ -61,25 +59,13 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
         </p>
       ) : null}
 
-      <div className="flex items-center gap-3.5">
-        <span
-          className={`flex size-14 flex-none items-center justify-center rounded-card text-[22px] font-bold ${boxColorClasses(box.color)}`}
-        >
-          {box.number ?? "•"}
-        </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <Heading className="text-2xl leading-tight font-bold break-words">{box.name}</Heading>
-          <p className="flex items-start gap-1.5 text-sm text-muted">
-            <IconStorage size={16} className="mt-0.5 flex-none text-box-icon" fillClassName="fill-none" />
-            <span className="min-w-0 break-words">{subtitle}</span>
-          </p>
-        </div>
+      <BoxHeader box={box} subtitle={subtitle} as={Heading}>
         {showEdit ? (
           <Link href={`/storage/${box.id}/edit`} aria-label="Изменить коробку" className={iconButtonClass}>
             <IconEdit size={22} />
           </Link>
         ) : null}
-      </div>
+      </BoxHeader>
 
       <section aria-labelledby="cells-title" className={section}>
         <h2 id="cells-title" className={sectionTitleClass}>
@@ -105,14 +91,9 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
                     replace
                     scroll={false}
                     aria-current={selected ? "true" : undefined}
-                    className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-field p-2 text-center no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy ${
-                      selected ? "bg-navy text-white" : "bg-tint text-navy hover:bg-border"
-                    }`}
+                    className={cellClass(selected)}
                   >
-                    <span className="max-w-full text-xl leading-none font-bold break-all">{c.code}</span>
-                    <span className={`text-xs leading-none ${selected ? "text-white" : "text-muted"}`}>
-                      {packsShort(c.packCount)}
-                    </span>
+                    <CellBody cell={c} selected={selected} />
                   </Link>
                 </li>
               );
@@ -136,36 +117,13 @@ export function BoxDetail({ box, detail, added, cellHref, showEdit, as: Heading 
           </p>
         ) : hasItems ? (
           <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-surface">
-            {detail.items.map((item) => {
-              const status = expiryStatus(item.expiry_date, today);
-              const sub = [item.activeIngredient, item.form, item.dosage].filter(Boolean).join(" · ");
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={`/medications/${item.medicationId}`}
-                    className="flex min-h-16 items-start gap-2.5 px-4 py-3 no-underline hover:bg-tint focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-navy"
-                  >
-                    <FormPlate form={item.form} />
-                    {/* Chips go under the text: the name keeps the full width beside the icon. */}
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="text-base leading-snug font-bold break-words">
-                        {item.medicationName}
-                      </span>
-                      {sub ? (
-                        <span className="text-[13px] leading-snug break-words text-muted">{sub}</span>
-                      ) : null}
-                      <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <QuantityChip text={pcsLabel(item.quantity)} />
-                        <ExpiryChip
-                          text={item.expiry_date ? `до ${formatExpiry(item.expiry_date)}` : ""}
-                          status={status}
-                        />
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
+            {detail.items.map((item) => (
+              <li key={item.id}>
+                <Link href={`/medications/${item.medicationId}`} className={boxItemClass}>
+                  <BoxItemBody item={item} today={today} />
+                </Link>
+              </li>
+            ))}
           </ul>
         ) : (
           <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-border bg-surface px-4 py-6 text-center">

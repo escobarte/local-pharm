@@ -1,10 +1,14 @@
 // Pure route helpers shared by proxy and auth handlers.
 
+import { OFFLINE_PATH, SW_PATH } from "./offline/sw.ts";
+
 export const LOGIN_PATH = "/login";
 export const NO_ACCESS_PATH = "/no-access";
 export const NOT_CONFIGURED_PATH = "/not-configured";
 
-const PUBLIC_PATHS = new Set([LOGIN_PATH, NO_ACCESS_PATH, NOT_CONFIGURED_PATH]);
+// "/offline" is the data-free shell the service worker stores: it must load without
+// a session. What it shows comes only from this device (lib/offline).
+const PUBLIC_PATHS = new Set([LOGIN_PATH, NO_ACCESS_PATH, NOT_CONFIGURED_PATH, OFFLINE_PATH, SW_PATH]);
 
 /** Pages reachable without a session. */
 export function isPublicPath(pathname: string): boolean {
